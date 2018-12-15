@@ -1,8 +1,11 @@
-# flickr-rsync
+# album-rsync
 
-> Its like rsync for Flickr!
+A python script to manage synchronising a local directory of photos with a remote service based on an rsync interaction pattern.
 
-A python script to manage synchronising a local directory of photos with Flickr based on an rsync interaction pattern.
+## Requirements
+
+Requires Python 3.
+See requirements.txt for list of dependencies.
 
 ## Installation
 
@@ -10,7 +13,7 @@ A python script to manage synchronising a local directory of photos with Flickr 
 
 Install from the python package manager by
 ```
-$ pip install flickr-rsync
+$ pip install album-rsync
 ```
 
 ### From GitHub repo
@@ -27,11 +30,15 @@ To install for the current user only:
 $ python setup.py install --user
 ```
 
+## Remote services
+
+Currently Flickr and Google Photos are supported.
+
 ## Authenticating with Flickr
 
 Two keys are provided by Flickr, an api key and a secret. To make your application aware of these keys there are two methods:
 * provide `--api-key` and `--api-secret` arguments to the command line
-* create a config file in $HOME/.flickr-rsync.ini with the following entries
+* create a config file in $HOME/.album-rsync.ini with the following entries
 
 ```
 API_KEY = xxxxxxxxxxxxxxxxxxx
@@ -40,6 +47,10 @@ API_SECRET = yyyyyyyyyyyyyy
 
 where x's and y's are replaced by the values provided by Flickr.
 
+## Authenticating with Google Photos
+
+// TODO
+
 ## Listing files
 
 The `--list-only` flag will print a list of files in the source storage provider, this can either be Flickr by specifying the `src` as `Flickr` or a local file system path. Use `--sort-files` to sort the files alphabetically. This feature is useful for manually creating a diff between your local files and Flickr files.
@@ -47,13 +58,13 @@ The `--list-only` flag will print a list of files in the source storage provider
 e.g. List all files in Flickr photo sets
 
 ```
-$ flickr-rsync flickr --list-only
+$ album-rsync flickr --list-only
 ```
 
 Or List all files in a local folder
 
 ```
-$ flickr-rsync ~/Pictures --list-only
+$ album-rsync ~/Pictures --list-only
 ```
 
 ### Tree view vs. csv view
@@ -63,7 +74,7 @@ You can change the output from a tree view to a comma separated values view by u
 e.g. Print in tree format
 
 ```
-$ flickr-rsync flickr --list-only --list-format=tree
+$ album-rsync flickr --list-only --list-format=tree
 
 ├─── 2017-04-24 Family Holiday
 │   ├─── IMG_2546.jpg [70ebf9]
@@ -80,7 +91,7 @@ $ flickr-rsync flickr --list-only --list-format=tree
 Or csv format
 
 ```
-$ flickr-rsync flickr --list-only --list-format=csv
+$ album-rsync flickr --list-only --list-format=csv
 
 Folder, Filename, Checksum
 2017-04-24 Family Holiday, IMG_2546.jpg, 70ebf9be4d8301e94c65582977332754
@@ -97,33 +108,33 @@ Folder, Filename, Checksum
 To just list the top level folders (without all the files). use `--list-folders`. 
 
 ```
-$ flickr-rsync ~/Pictures --list-folders
+$ album-rsync ~/Pictures --list-folders
 ```
 ## Syncing files
 
 e.g. To copy all files from Flickr to a local folder
 
 ```
-$ flickr-rsync flickr ~/Pictures/flickr
+$ album-rsync flickr ~/Pictures/flickr
 ```
 
 Or to copy all files from a local folder up to Flickr	
 
 ```
-$ flickr-rsync ~/Pictures/flickr flickr
+$ album-rsync ~/Pictures/flickr flickr
 ```
 
 You can even copy from a local folder to another local folder
 
 ```
-$ flickr-rsync ~/Pictures/from ~/Pictures/to
+$ album-rsync ~/Pictures/from ~/Pictures/to
 ```
 
 Files are matched by folder names and file names. E.g. if you have a Flickr photoset called `2017-04-16 Easter Camping` and a file called `IMG_2517.jpg`, and you are trying to copy from a folder with `2017-04-16 Easter Camping\IMG_2517.jpg` it will assume this file is the same and will not try to copy it.
 
 ### Will never delete!
 
-`flickr-rsync` will never delete any files, either from Flickr or your local system, it is append only. It will not overwrite any files either, if a file with the same name exists in the same photoset / folder, it will be skipped.
+`album-rsync` will never delete any files, either from Flickr or your local system, it is append only. It will not overwrite any files either, if a file with the same name exists in the same photoset / folder, it will be skipped.
 
 ## Filtering
 
@@ -144,10 +155,10 @@ Note that filtering does not apply to root files, root files (files in the targe
 
 ## Options
 
-All options can be provided by either editing the config file `flickr-rsync.ini` or using the command line interface.
+All options can be provided by either editing the config file `album-rsync.ini` or using the command line interface.
 
 ```
-usage: flickr-rsync [-h] [-l] [--list-format {tree,csv}] [--list-sort]
+usage: album-rsync [-h] [-l] [--list-format {tree,csv}] [--list-sort]
                     [--include REGEX] [--include-dir REGEX] [--exclude REGEX]
                     [--exclude-dir REGEX] [--root-files] [-n]
                     [--throttling SEC] [--retry NUM] [--api-key API_KEY]
@@ -201,13 +212,13 @@ optional arguments:
 
 ### Config and token file discovery
 
-The config file `flickr-rsync.ini` and Flickr token file `flickr-rsync.token` are searched for in the following locations in order:
-* `<current working dir>/flickr-rsync.ini`
-* `<current working dir>/.flickr-rsync.ini`
-* `<users home dir>/flickr-rsync.ini`
-* `<users home dir>/.flickr-rsync.ini`
-* `<executable dir>/flickr-rsync.ini`
-* `<executable dir>/.flickr-rsync.ini`
+The config file `album-rsync.ini` and Flickr token file `album-rsync.token` are searched for in the following locations in order:
+* `<current working dir>/album-rsync.ini`
+* `<current working dir>/.album-rsync.ini`
+* `<users home dir>/album-rsync.ini`
+* `<users home dir>/.album-rsync.ini`
+* `<executable dir>/album-rsync.ini`
+* `<executable dir>/.album-rsync.ini`
 
 ## Developing
 
@@ -277,7 +288,7 @@ $ python -m unittest discover -s tests -p '*_test.py'
 
 To list just root files only:
 ```
-$ flickr-rsync flickr --exclude-dir '.*' --root-files --list-only
+$ album-rsync flickr --exclude-dir '.*' --root-files --list-only
 ```
 
 ### Videos
@@ -325,15 +336,15 @@ WindowsError: [Error 123] The filename, directory name, or volume label syntax i
 Ensure that you are not using single quotes `'` around a folder path in windows, instead use double quotes `"`. e.g.
 
 ```
-$ flickr-rsync "C:\Users\xxx\Pictures" --list-only
+$ album-rsync "C:\Users\xxx\Pictures" --list-only
 ```
 
 #### When I try list list in a local folder called 'flickr' it lists my remote flickr files
 
-flickr-rsync uses the keyword `flickr` as a src or dest to denote pulling the list from flickr. If you have a folder called flickr, just give it a relative or absolute path make it obvious that it's a file path, e.g.
+album-rsync uses the keyword `flickr` as a src or dest to denote pulling the list from flickr. If you have a folder called flickr, just give it a relative or absolute path make it obvious that it's a file path, e.g.
 
 ```
-$ flickr-rsync ./flickr --list-only
+$ album-rsync ./flickr --list-only
 ```
 #### If I add tags, they get changed by flickr, e.g. 'extn=mov becomes extnmov'.
 Internally flickr removes all whitespace and special characters, so 'extn mov' and 'extn=mov' match 'extnmov'. You can 

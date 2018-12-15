@@ -1,11 +1,18 @@
+# OS
+.DS_Store
+
+# Build folders
 build/
 dist/
 libs/
 
-*flickr-rsync.token
+# Python
 *.pyc
-.DS_Store
-
-/flickr_rsync.egg-info
+*.egg-info
 *.egg
 .eggs
+.venv
+.pytest_cache
+__pycache__
+
+*flickr-rsync.token
