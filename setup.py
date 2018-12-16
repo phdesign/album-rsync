@@ -15,7 +15,7 @@ from setuptools import setup
 from album_rsync._version import __version__
 
 with open('README.md') as f:
-    readme = f.read()
+    readme = f.read()    # pylint: disable=invalid-name
 
 setup(
     name='album-rsync',
@@ -34,7 +34,7 @@ setup(
         # 'argparse~=1.4.0',
         # 'rx~=1.5.9',
         # 'futures~=3.1.1',
-        # 'backoff~=1.3.1'
+        'backoff'
     ],
     # dependency_links = [
         # 'https://github.com/alexis-mignon/python-flickr-api/tarball/6f3163b#egg=flickr_api-0.5beta'
@@ -42,7 +42,7 @@ setup(
     setup_requires=['pytest-runner', 'pytest-pylint'],
     tests_require=['pytest', 'pylint'],
     zip_safe=True,
-    entry_points = {
+    entry_points={
         'console_scripts': ['album-rsync=album_rsync:main'],
     },
     include_package_data=True
