@@ -13,34 +13,33 @@ import time
 import logging
 from functools import wraps
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 # Copied from 'backoff' project
-def _maybe_call(f, *args, **kwargs):
-    return f(*args, **kwargs) if callable(f) else f
+def _maybe_call(func, *args, **kwargs):
+    return func(*args, **kwargs) if callable(func) else func
 
-class HistoryItem(object):
+class HistoryItem:
     def __init__(self, func):
         self.func = func
         self.last_call = None
 
-history = []
+HISTORY = []
 def throttle(delay_sec=0):
     def decorator(func):
-        state = next((x for x in history if x.func == func), None)
-        if state == None:
+        state = next((x for x in HISTORY if x.func == func), None)
+        if state is None:
             state = HistoryItem(func)
-            history.append(state)
+            HISTORY.append(state)
         @wraps(func)
         def wrapper(*args, **kwargs):
             delay_sec_ = _maybe_call(delay_sec)
-            if delay_sec_ > 0 and state.last_call != None:
+            if delay_sec_ > 0 and state.last_call is not None:
                 delay = delay_sec_ - (time.time() - state.last_call)
                 if delay > 0:
-                    logger.debug('throttling function call, sleeping for {} seconds'.format(delay))
+                    LOGGER.debug('throttling function call, sleeping for %s seconds', delay)
                     time.sleep(delay)
             state.last_call = time.time()
             return func(*args, **kwargs)
         return wrapper
     return decorator
-

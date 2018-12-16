@@ -2,7 +2,7 @@ import logging
 import backoff
 from .throttle import throttle
 
-class Resiliently:  # pylint: disable=too-few-public-methods
+class Resiliently:
     def __init__(self, config):
         self._config = config
         if config.verbose:

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import os, sys
 # import time
-# import urllib2
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + '/..')
 from unittest.mock import MagicMock, patch, call
-# import helpers
+import tests.helpers
 from album_rsync.resiliently import Resiliently
+from urllib.error import URLError
 
 class TestResiliently:
 
@@ -24,22 +24,20 @@ class TestResiliently:
 
     def test_should_make_remote_call(self):
         resiliently = Resiliently(self.config)
-
         resiliently.call(self.callback, 'a', b='b')
-
+        
         self.callback.assert_called_once_with('a', b='b')
 
-    # def test_should_retry_once_with_backoff(self):
-        # self.config.retry = 1
-        # self.callback.side_effect = self.throw_errors(1)
-        # resiliently = Resiliently(self.config)
+    def test_should_retry_once_with_backoff(self):
+        self.config.retry = 1
+        self.callback.side_effect = self.throw_errors(1)
+        resiliently = Resiliently(self.config)
+        resiliently.call(self.callback, 'a', b='b')
 
-        # resiliently.call(self.callback, 'a', b='b')
-
-        # self.callback.assert_has_calls_exactly([
-            # call('a', b='b'),
-            # call('a', b='b')
-        # ])
+        self.callback.assert_has_calls_exactly([
+            call('a', b='b'),
+            call('a', b='b')
+        ])
 
     # def test_should_retry_specified_times(self):
         # self.config.retry = 3
@@ -125,7 +123,7 @@ class TestResiliently:
         # self.mock_sleep.assert_not_called()
         # time_patch.stop()
 
-    # def throw_errors(self, num):
-        # for x in range(num):
-            # yield urllib2.URLError('Bang!')
-        # yield True
+    def throw_errors(self, num):
+        for x in range(num):
+            yield URLError('Bang!')
+        yield True
