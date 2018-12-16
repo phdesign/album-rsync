@@ -22,7 +22,7 @@ def setup_storage(storage, folders):
 
 def assert_has_calls_exactly(mock, calls, any_order=False):
     mock.assert_has_calls(calls, any_order=any_order)
-    message = f"Expected '{mock._mock_name}' to be called {mock.call_count} times. Called {len(calls)} times."
-    assert mock.call_count == len(calls), message
+    assert mock.call_count == len(calls), \
+        f"Expected '{mock._mock_name}' to be called {mock.call_count} times. Called {len(calls)} times."
 
 NonCallableMock.assert_has_calls_exactly = assert_has_calls_exactly
