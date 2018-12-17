@@ -9,7 +9,7 @@ from urllib.error import URLError
 
 class TestResiliently:
 
-    def setup_method(self, method):
+    def setup_method(self):
         self.sleep_patch = patch('album_rsync.throttle.time.sleep', create=True)
         self.mock_sleep = self.sleep_patch.start()
 
@@ -19,7 +19,7 @@ class TestResiliently:
         self.callback = MagicMock()
         self.callback.__name__ = 'foo'
 
-    def teardown_method(self, method):
+    def teardown_method(self):
         self.sleep_patch.stop()
 
     def test_should_make_remote_call(self):

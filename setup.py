@@ -32,7 +32,7 @@ setup(
     install_requires=[
         # 'flickr_api>=0.5beta',
         # 'argparse~=1.4.0',
-        # 'rx~=1.5.9',
+        'rx',
         # 'futures~=3.1.1',
         'backoff'
     ],
