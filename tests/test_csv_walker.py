@@ -1,3 +1,4 @@
+#pylint: disable=wrong-import-position, attribute-defined-outside-init
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + '/..')
 from unittest.mock import MagicMock, patch, call
@@ -12,7 +13,7 @@ class TestCsvWalker:
     def setup_method(self):
         self.print_patch = patch('album_rsync.csv_walker.print', create=True)
         self.mock_print = self.print_patch.start()
-        self.logger_patch = patch('album_rsync.csv_walker.LOGGER', create=True)
+        self.logger_patch = patch('album_rsync.csv_walker.LOG', create=True)
         self.mock_logger = self.logger_patch.start()
         self.time_patch = patch('album_rsync.csv_walker.time.time', create=True)
         self.time_patch.start().return_value = 0

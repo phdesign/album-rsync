@@ -4,7 +4,7 @@ from rx import Observable
 from .walker import Walker
 from .root_folder_info import RootFolderInfo
 
-LOGGER = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 class CsvWalker(Walker):
 
@@ -37,8 +37,9 @@ class CsvWalker(Walker):
             files.subscribe(on_next=lambda file_folder: self._print_file(file_folder[1], file_folder[0]),
                             on_completed=lambda: self._print_summary(time.time() - start))
 
+
     def _print_file(self, folder, fileinfo):
         print("{}, {}, {}".format(folder.name if folder else '', fileinfo.name, fileinfo.checksum))
 
     def _print_summary(self, elapsed):
-        LOGGER.info("\ndone in %s sec", round(elapsed, 2))
+        LOG.info("\ndone in %s sec", round(elapsed, 2))

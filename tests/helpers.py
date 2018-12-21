@@ -1,4 +1,4 @@
-from unittest.mock import NonCallableMock 
+from unittest.mock import NonCallableMock
 
 def setup_storage(storage, folders):
     """
@@ -6,7 +6,7 @@ def setup_storage(storage, folders):
 
     Args:
         storage: A MagicMock to add mock behaviour to
-        folders: A list of dictionaries of folder and file items in the format 
+        folders: A list of dictionaries of folder and file items in the format
             [{ 'folder': FolderInfo, 'files': [FileInfo, ...] }, ...]
 
     Example:
@@ -23,6 +23,6 @@ def setup_storage(storage, folders):
 def assert_has_calls_exactly(mock, calls, any_order=False):
     mock.assert_has_calls(calls, any_order=any_order)
     assert mock.call_count == len(calls), \
-        f"Expected '{mock._mock_name}' to be called {mock.call_count} times. Called {len(calls)} times."
+        f"Expected '{mock._mock_name}' to be called {mock.call_count} times. Called {len(calls)} times."    #pylint: disable=protected-access
 
 NonCallableMock.assert_has_calls_exactly = assert_has_calls_exactly
