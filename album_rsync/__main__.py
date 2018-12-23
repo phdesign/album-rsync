@@ -1,5 +1,5 @@
 # import sys
-from urllib2 import URLError
+from urllib.error import URLError
 import logging
 
 from .config import Config

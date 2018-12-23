@@ -1,9 +1,9 @@
 import os, sys
-import ConfigParser
+from configparser import SafeConfigParser
 import argparse
 import logging
 from distutils.util import strtobool
-from _version import __version__
+from ._version import __version__
 
 __packagename__ = 'album-rsync'
 CONFIG_FILENAME = __packagename__ + '.ini'
@@ -132,7 +132,7 @@ class Config:
 
     def _read_ini(self, ini_path):
         options = DEFAULTS.copy()
-        config = ConfigParser.SafeConfigParser()
+        config = SafeConfigParser()
 
         if ini_path:
             config.read(ini_path)
@@ -186,7 +186,7 @@ class Config:
 
     def _read_section(self, config, section, types):
         items = dict(config.items(section))
-        for prop, typeinfo in types.iteritems():
+        for prop, typeinfo in types.items():
             if items.get(prop):
                 if typeinfo == int:
                     items[prop] = int(items[prop])
