@@ -31,9 +31,7 @@ setup(
     keywords=['flickr', 'sync', 'rsync', 'photo', 'media', 'google', 'photos'],
     install_requires=[
         # 'flickr_api>=0.5beta',
-        # 'argparse~=1.4.0',
         'rx',
-        # 'futures~=3.1.1',
         'backoff'
     ],
     # dependency_links = [

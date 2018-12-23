@@ -33,7 +33,7 @@ class CsvWalker(Walker):
             files = folders.concat_map(lambda folder: Observable.from_((fileinfo, folder) for fileinfo in self._storage.list_files(folder)))
             # Print each file
             if self._config.list_sort:
-                files = files.to_sorted_list(key_selector=lambda file_folder: "{} {}".format(file_folder[1].name, file_folder[0].name)) \
+                files = files.to_sorted_list(key_selector=lambda x: "{} {}".format(x[1].name, x[0].name)) \
                     .flat_map(lambda x: x)
             files.subscribe(on_next=unpack(lambda fileinfo, folder: self._print_file(folder, fileinfo)),
                             on_completed=lambda: self._print_summary(time.time() - start))
@@ -44,5 +44,3 @@ class CsvWalker(Walker):
 
     def _print_summary(self, elapsed):
         logger.info(f"\ndone in {round(elapsed, 2)} sec")
-
-                # files = files.to_sorted_list(key_selector=unpack(lambda fileinfo, folder: "{fileinfo.name} {folder.name}")) \
