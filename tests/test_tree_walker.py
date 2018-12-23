@@ -91,153 +91,153 @@ class TestTreeWalker:
         ])
         self.mock_logger.info.assert_called_once_with("0 directories, 2 files (excluding 1 empty directories) read in 0 sec")
 
-    # def test_should_not_print_root_files_given_root_files_disabled(self):
-        # self.config.root_files = False
-        # walker = TreeWalker(self.config, self.storage)
-        # tests.helpers.setup_storage(self.storage, [
-            # {'folder': self.root_folder, 'files': [self.file_one, self.file_two]}
-        # ])
+    def test_should_not_print_root_files_given_root_files_disabled(self):
+        self.config.root_files = False
+        walker = TreeWalker(self.config, self.storage)
+        tests.helpers.setup_storage(self.storage, [
+            {'folder': self.root_folder, 'files': [self.file_one, self.file_two]}
+        ])
 
-        # walker.walk()
+        walker.walk()
 
-        # self.mock_print.assert_not_called()
-        # self.mock_logger.info.assert_called_once_with("0 directories, 0 files read in 0.0 sec")
+        self.mock_print.assert_not_called()
+        self.mock_logger.info.assert_called_once_with("0 directories, 0 files read in 0 sec")
 
-    # def test_should_print_root_files_given_root_files_enabled_and_folders_exist(self):
-        # self.config.root_files = True
-        # self.config.list_sort = False
-        # walker = TreeWalker(self.config, self.storage)
-        # tests.helpers.setup_storage(self.storage, [
-            # {'folder': self.root_folder, 'files': [self.file_three]},
-            # {'folder': self.folder_one, 'files': [self.file_one]}
-        # ])
+    def test_should_print_root_files_given_root_files_enabled_and_folders_exist(self):
+        self.config.root_files = True
+        self.config.list_sort = False
+        walker = TreeWalker(self.config, self.storage)
+        tests.helpers.setup_storage(self.storage, [
+            {'folder': self.root_folder, 'files': [self.file_three]},
+            {'folder': self.folder_one, 'files': [self.file_one]}
+        ])
 
-        # walker.walk()
+        walker.walk()
 
-        # self.mock_print.assert_has_calls([
-            # call(u"├─── C File [abc123]".encode('utf-8')),
-            # call(u"│   ".encode('utf-8')),
-            # call(u"└─── A Folder".encode('utf-8')),
-            # call(u"    └─── A File".encode('utf-8'))
-        # ])
-        # self.mock_logger.info.assert_called_once_with("1 directories, 2 files read in 0.0 sec")
+        self.mock_print.assert_has_calls([
+            call("├─── C File [abc123]"),
+            call("│   "),
+            call("└─── A Folder"),
+            call("    └─── A File")
+        ])
+        self.mock_logger.info.assert_called_once_with("1 directories, 2 files read in 0 sec")
 
-    # def test_should_print_folder_files(self):
-        # walker = TreeWalker(self.config, self.storage)
-        # tests.helpers.setup_storage(self.storage, [
-            # {'folder': self.folder_one, 'files': [self.file_one, self.file_two]}
-        # ])
+    def test_should_print_folder_files(self):
+        walker = TreeWalker(self.config, self.storage)
+        tests.helpers.setup_storage(self.storage, [
+            {'folder': self.folder_one, 'files': [self.file_one, self.file_two]}
+        ])
 
-        # walker.walk()
+        walker.walk()
 
-        # self.mock_print.assert_has_calls([
-            # call(u"└─── A Folder".encode('utf-8')),
-            # call(u"    ├─── A File".encode('utf-8')),
-            # call(u"    └─── B File".encode('utf-8'))
-        # ])
-        # self.mock_logger.info.assert_called_once_with("1 directories, 2 files read in 0.0 sec")
+        self.mock_print.assert_has_calls([
+            call("└─── A Folder"),
+            call("    ├─── A File"),
+            call("    └─── B File")
+        ])
+        self.mock_logger.info.assert_called_once_with("1 directories, 2 files read in 0 sec")
 
-    # def test_should_print_all_folders(self):
-        # walker = TreeWalker(self.config, self.storage)
-        # tests.helpers.setup_storage(self.storage, [
-            # {'folder': self.folder_one, 'files': [self.file_one]},
-            # {'folder': self.folder_two, 'files': [self.file_two]}
-        # ])
+    def test_should_print_all_folders(self):
+        walker = TreeWalker(self.config, self.storage)
+        tests.helpers.setup_storage(self.storage, [
+            {'folder': self.folder_one, 'files': [self.file_one]},
+            {'folder': self.folder_two, 'files': [self.file_two]}
+        ])
 
-        # walker.walk()
+        walker.walk()
 
-        # self.mock_print.assert_has_calls([
-            # call(u"├─── A Folder".encode('utf-8')),
-            # call(u"│   └─── A File".encode('utf-8')),
-            # call(u"│   ".encode('utf-8')),
-            # call(u"└─── B Folder".encode('utf-8')),
-            # call(u"    └─── B File".encode('utf-8'))
-        # ])
-        # self.mock_logger.info.assert_called_once_with("2 directories, 2 files read in 0.0 sec")
+        self.mock_print.assert_has_calls([
+            call("├─── A Folder"),
+            call("│   └─── A File"),
+            call("│   "),
+            call("└─── B Folder"),
+            call("    └─── B File")
+        ])
+        self.mock_logger.info.assert_called_once_with("2 directories, 2 files read in 0 sec")
 
-    # def test_should_print_checksum_given_file_has_checksum(self):
-        # walker = TreeWalker(self.config, self.storage)
-        # tests.helpers.setup_storage(self.storage, [
-            # {'folder': self.folder_one, 'files': [self.file_three]}
-        # ])
+    def test_should_print_checksum_given_file_has_checksum(self):
+        walker = TreeWalker(self.config, self.storage)
+        tests.helpers.setup_storage(self.storage, [
+            {'folder': self.folder_one, 'files': [self.file_three]}
+        ])
 
-        # walker.walk()
+        walker.walk()
 
-        # self.mock_print.assert_has_calls([
-            # call(u"└─── A Folder".encode('utf-8')),
-            # call(u"    └─── C File [abc123]".encode('utf-8'))
-        # ])
-        # self.mock_logger.info.assert_called_once_with("1 directories, 1 files read in 0.0 sec")
+        self.mock_print.assert_has_calls([
+            call("└─── A Folder"),
+            call("    └─── C File [abc123]")
+        ])
+        self.mock_logger.info.assert_called_once_with("1 directories, 1 files read in 0 sec")
 
-    # def test_should_sort_folders_and_files_given_sort_enabled(self):
-        # self.config.list_sort = True
-        # walker = TreeWalker(self.config, self.storage)
-        # tests.helpers.setup_storage(self.storage, [
-            # {'folder': self.folder_two, 'files': [self.file_three, self.file_two]},
-            # {'folder': self.folder_one, 'files': [self.file_one]}
-        # ])
+    def test_should_sort_folders_and_files_given_sort_enabled(self):
+        self.config.list_sort = True
+        walker = TreeWalker(self.config, self.storage)
+        tests.helpers.setup_storage(self.storage, [
+            {'folder': self.folder_two, 'files': [self.file_three, self.file_two]},
+            {'folder': self.folder_one, 'files': [self.file_one]}
+        ])
 
-        # walker.walk()
+        walker.walk()
 
-        # self.mock_print.assert_has_calls([
-            # call(u"├─── A Folder".encode('utf-8')),
-            # call(u"│   └─── A File".encode('utf-8')),
-            # call(u"│   ".encode('utf-8')),
-            # call(u"└─── B Folder".encode('utf-8')),
-            # call(u"    ├─── B File".encode('utf-8')),
-            # call(u"    └─── C File [abc123]".encode('utf-8'))
-        # ])
-        # self.mock_logger.info.assert_called_once_with("2 directories, 3 files read in 0.0 sec")
+        self.mock_print.assert_has_calls([
+            call("├─── A Folder"),
+            call("│   └─── A File"),
+            call("│   "),
+            call("└─── B Folder"),
+            call("    ├─── B File"),
+            call("    └─── C File [abc123]")
+        ])
+        self.mock_logger.info.assert_called_once_with("2 directories, 3 files read in 0 sec")
 
-    # def test_should_not_sort_folders_and_files_given_sort_disabled(self):
-        # self.config.list_sort = False
-        # walker = TreeWalker(self.config, self.storage)
-        # tests.helpers.setup_storage(self.storage, [
-            # {'folder': self.folder_two, 'files': [self.file_three, self.file_two]},
-            # {'folder': self.folder_one, 'files': [self.file_one]}
-        # ])
+    def test_should_not_sort_folders_and_files_given_sort_disabled(self):
+        self.config.list_sort = False
+        walker = TreeWalker(self.config, self.storage)
+        tests.helpers.setup_storage(self.storage, [
+            {'folder': self.folder_two, 'files': [self.file_three, self.file_two]},
+            {'folder': self.folder_one, 'files': [self.file_one]}
+        ])
 
-        # walker.walk()
+        walker.walk()
 
-        # self.mock_print.assert_has_calls([
-            # call(u"├─── B Folder".encode('utf-8')),
-            # call(u"│   ├─── C File [abc123]".encode('utf-8')),
-            # call(u"│   └─── B File".encode('utf-8')),
-            # call(u"│   ".encode('utf-8')),
-            # call(u"└─── A Folder".encode('utf-8')),
-            # call(u"    └─── A File".encode('utf-8'))
-        # ])
-        # self.mock_logger.info.assert_called_once_with("2 directories, 3 files read in 0.0 sec")
+        self.mock_print.assert_has_calls([
+            call("├─── B Folder"),
+            call("│   ├─── C File [abc123]"),
+            call("│   └─── B File"),
+            call("│   "),
+            call("└─── A Folder"),
+            call("    └─── A File")
+        ])
+        self.mock_logger.info.assert_called_once_with("2 directories, 3 files read in 0 sec")
 
-    # def test_should_print_only_folders_given_list_folders_enabled(self):
-        # self.config.list_folders = True
-        # walker = TreeWalker(self.config, self.storage)
-        # tests.helpers.setup_storage(self.storage, [
-            # {'folder': self.folder_two, 'files': [self.file_three, self.file_two]},
-            # {'folder': self.folder_one, 'files': [self.file_one]}
-        # ])
+    def test_should_print_only_folders_given_list_folders_enabled(self):
+        self.config.list_folders = True
+        walker = TreeWalker(self.config, self.storage)
+        tests.helpers.setup_storage(self.storage, [
+            {'folder': self.folder_two, 'files': [self.file_three, self.file_two]},
+            {'folder': self.folder_one, 'files': [self.file_one]}
+        ])
 
-        # walker.walk()
+        walker.walk()
 
-        # self.mock_print.assert_has_calls([
-            # call(u"├─── B Folder".encode('utf-8')),
-            # call(u"└─── A Folder".encode('utf-8'))
-        # ])
-        # self.mock_logger.info.assert_called_once_with("2 directories read in 0.0 sec")
+        self.mock_print.assert_has_calls([
+            call("├─── B Folder"),
+            call("└─── A Folder")
+        ])
+        self.mock_logger.info.assert_called_once_with("2 directories read in 0 sec")
 
-    # def test_should_sort_folders_and_files_given_sort_enabled2(self):
-        # self.config.list_sort = True
-        # self.config.list_folders = True
-        # walker = TreeWalker(self.config, self.storage)
-        # tests.helpers.setup_storage(self.storage, [
-            # {'folder': self.folder_two, 'files': [self.file_three, self.file_two]},
-            # {'folder': self.folder_one, 'files': [self.file_one]}
-        # ])
+    def test_should_sort_folders_and_files_given_sort_enabled2(self):
+        self.config.list_sort = True
+        self.config.list_folders = True
+        walker = TreeWalker(self.config, self.storage)
+        tests.helpers.setup_storage(self.storage, [
+            {'folder': self.folder_two, 'files': [self.file_three, self.file_two]},
+            {'folder': self.folder_one, 'files': [self.file_one]}
+        ])
 
-        # walker.walk()
+        walker.walk()
 
-        # self.mock_print.assert_has_calls([
-            # call(u"├─── A Folder".encode('utf-8')),
-            # call(u"└─── B Folder".encode('utf-8'))
-        # ])
-        # self.mock_logger.info.assert_called_once_with("2 directories read in 0.0 sec")
+        self.mock_print.assert_has_calls([
+            call("├─── A Folder"),
+            call("└─── B Folder")
+        ])
+        self.mock_logger.info.assert_called_once_with("2 directories read in 0 sec")
