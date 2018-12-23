@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+#pylint: disable=wrong-import-position, attribute-defined-outside-init
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + '/..')
-import tests.helpers
-import pytest
 from unittest.mock import MagicMock, patch, call
-from album_rsync.resiliently import Resiliently
 from urllib.error import URLError
+import tests.helpers    #pylint: disable=unused-import
+import pytest
+from album_rsync.resiliently import Resiliently
 
 class TestResiliently:
 
@@ -25,7 +26,7 @@ class TestResiliently:
     def test_should_make_remote_call(self):
         resiliently = Resiliently(self.config)
         resiliently.call(self.callback, 'a', b='b')
-        
+
         self.callback.assert_called_once_with('a', b='b')
 
     def test_should_retry_once_with_backoff(self):
@@ -123,6 +124,6 @@ class TestResiliently:
         time_patch.stop()
 
     def throw_errors(self, num):
-        for x in range(num):
+        for _ in range(num):
             yield URLError('Bang!')
         yield True

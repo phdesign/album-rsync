@@ -5,12 +5,13 @@ from rx import Observable, AnonymousObservable
 from rx.internal import extensionmethod
 from .walker import Walker
 from .root_folder_info import RootFolderInfo
+from .utils import unpack
 
 UNICODE_LEAF = u"├─── ".encode('utf-8')
 UNICODE_LAST_LEAF = u"└─── ".encode('utf-8')
 UNICODE_BRANCH = u"│   ".encode('utf-8')
 UNICODE_LAST_BRANCH = "    "
-LOG = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 @extensionmethod(Observable)
 def is_last(source):
@@ -53,7 +54,7 @@ class TreeWalker(Walker):
         # Expand folder messages into file messages
         folders = folders.publish().auto_connect(2)
         files = folders.is_last() \
-            .map(lambda x, is_last: dict(x, is_last_folder=is_last))
+            .map(unpack(lambda x, is_last: dict(x, is_last_folder=is_last)))
         if not self._config.list_folders:
             files = files.concat_map(self._walk_folder)
         # Group by folder but still provide a file stream within each group
@@ -67,7 +68,7 @@ class TreeWalker(Walker):
             .count(self._not_root)
         files.count() \
             .zip(shown_folder_count, all_folder_count, lambda n_files, n_shown, n_all: (n_files, n_shown, n_all - n_shown)) \
-            .subscribe(lambda count: self._print_summary(time.time() - start, count[0], count[1], count[2]))
+            .subscribe(unpack(lambda n_files, n_shown, n_hidden: self._print_summary(time.time() - start, n_files, n_shown, n_hidden)))
 
     def _not_root(self, x):
         return not x['folder'].is_root
@@ -90,12 +91,12 @@ class TreeWalker(Walker):
             file_list = sorted(file_list, key=lambda x: x.name)
 
         return Observable.from_(file_list).is_last() \
-            .map(lambda f, is_last: dict(msg, file=f, is_last_file=is_last))
+            .map(unpack(lambda f, is_last: dict(msg, file=f, is_last_file=is_last)))
 
-    def _print_folder(self, folder, is_last_folder):
+    def _print_folder(self, folder, is_last_folder, **kwargs):  #pylint: disable=unused-argument
         print("{}{}".format(UNICODE_LAST_LEAF if is_last_folder else UNICODE_LEAF, folder.name))
 
-    def _print_file(self, file, is_last_file, is_last_folder, is_root_folder):
+    def _print_file(self, file, is_last_file, is_last_folder, is_root_folder, **kwargs):  #pylint: disable=unused-argument
         folder_prefix = ''
         if not is_root_folder:
             if is_last_folder:
@@ -106,13 +107,15 @@ class TreeWalker(Walker):
         if is_last_file and (not is_root_folder or is_last_folder):
             file_prefix = UNICODE_LAST_LEAF
 
-        print("{}{}{}{}".format(folder_prefix, file_prefix, file.name,
-                                " [{:.6}]".format(file.checksum) if file.checksum else ''))
+        print("{}{}{}{}".format(
+            folder_prefix, file_prefix, file.name,
+            " [{:.6}]".format(file.checksum) if file.checksum else ''))
         if is_last_file and not is_last_folder:
             print(UNICODE_BRANCH)
 
     def _print_summary(self, elapsed, file_count, folder_count, hidden_folder_count):
-        LOG.info("%s directories%s%s read in %s sec", folder_count,
-                 ", {} files".format(file_count) if not self._config.list_folders else "",
-                 " (excluding {} empty directories)".format(hidden_folder_count) if hidden_folder_count > 0 else "",
-                 round(elapsed, 2))
+        logger.info("{} directories{}{} read in {} sec".format(
+            folder_count,
+            ", {} files".format(file_count) if not self._config.list_folders else "",
+            " (excluding {} empty directories)".format(hidden_folder_count) if hidden_folder_count > 0 else "",
+            round(elapsed, 2)))

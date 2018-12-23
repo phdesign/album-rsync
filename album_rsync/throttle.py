@@ -13,7 +13,7 @@ import time
 import logging
 from functools import wraps
 
-LOG = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 # Copied from 'backoff' project
 def _maybe_call(func, *args, **kwargs):
@@ -37,7 +37,7 @@ def throttle(delay_sec=0):
             if delay_sec_ > 0 and state.last_call is not None:
                 delay = delay_sec_ - (time.time() - state.last_call)
                 if delay > 0:
-                    LOG.debug('throttling function call, sleeping for %s seconds', delay)
+                    logger.debug('throttling function call, sleeping for %s seconds', delay)
                     time.sleep(delay)
             state.last_call = time.time()
             return func(*args, **kwargs)

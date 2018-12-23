@@ -13,7 +13,7 @@ class TestCsvWalker:
     def setup_method(self):
         self.print_patch = patch('album_rsync.csv_walker.print', create=True)
         self.mock_print = self.print_patch.start()
-        self.logger_patch = patch('album_rsync.csv_walker.LOG', create=True)
+        self.logger_patch = patch('album_rsync.csv_walker.logger', create=True)
         self.mock_logger = self.logger_patch.start()
         self.time_patch = patch('album_rsync.csv_walker.time.time', create=True)
         self.time_patch.start().return_value = 0
@@ -44,7 +44,7 @@ class TestCsvWalker:
         self.mock_print.assert_has_calls_exactly([
             call("Folder, Filename, Checksum")
         ])
-        self.mock_logger.info.assert_called_once_with("\ndone in %s sec", 0)
+        self.mock_logger.info.assert_called_once_with("\ndone in 0 sec")
 
     def test_should_print_header_only_given_empty_folders(self):
         walker = CsvWalker(self.config, self.storage)

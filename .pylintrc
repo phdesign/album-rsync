@@ -2,7 +2,7 @@
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
-ignore=tests
+ignore=
 
 
 [MESSAGES CONTROL]
@@ -22,7 +22,9 @@ disable=line-too-long,                  # Sometimes longer lines are better than
         no-self-use,                    # Forcing static methods can make extending the code later harder
         import-error,                   # Not accurately reporting imports (maybe because venv?)
         multiple-imports,               # I like `import os, sys`
-        too-many-instance-attributes    # The tests classes typically have a lot of these
+        too-many-instance-attributes,   # The tests classes typically have a lot of these
+        logging-format-interpolation,   # Minimal optimisation, and not doing this makes tests cleaner
+        logging-fstring-interpolation   # As above
 
 
 [BASIC]

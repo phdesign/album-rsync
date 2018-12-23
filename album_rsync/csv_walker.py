@@ -3,8 +3,9 @@ import logging
 from rx import Observable
 from .walker import Walker
 from .root_folder_info import RootFolderInfo
+from .utils import unpack
 
-LOG = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 class CsvWalker(Walker):
 
@@ -34,12 +35,14 @@ class CsvWalker(Walker):
             if self._config.list_sort:
                 files = files.to_sorted_list(key_selector=lambda file_folder: "{} {}".format(file_folder[1].name, file_folder[0].name)) \
                     .flat_map(lambda x: x)
-            files.subscribe(on_next=lambda file_folder: self._print_file(file_folder[1], file_folder[0]),
+            files.subscribe(on_next=unpack(lambda fileinfo, folder: self._print_file(folder, fileinfo)),
                             on_completed=lambda: self._print_summary(time.time() - start))
 
 
     def _print_file(self, folder, fileinfo):
-        print("{}, {}, {}".format(folder.name if folder else '', fileinfo.name, fileinfo.checksum))
+        print(f"{folder.name if folder else ''}, {fileinfo.name}, {fileinfo.checksum}")
 
     def _print_summary(self, elapsed):
-        LOG.info("\ndone in %s sec", round(elapsed, 2))
+        logger.info(f"\ndone in {round(elapsed, 2)} sec")
+
+                # files = files.to_sorted_list(key_selector=unpack(lambda fileinfo, folder: "{fileinfo.name} {folder.name}")) \
