@@ -24,7 +24,8 @@ disable=line-too-long,                  # Sometimes longer lines are better than
         multiple-imports,               # I like `import os, sys`
         too-many-instance-attributes,   # The tests classes typically have a lot of these
         logging-format-interpolation,   # Minimal optimisation, and not doing this makes tests cleaner
-        logging-fstring-interpolation   # As above
+        logging-fstring-interpolation,  # As above
+        duplicate-code                  # Temporarily - turn it back on soon
 
 
 [BASIC]
@@ -37,7 +38,8 @@ good-names=i,
            ex,
            Run,
            _,
-           id
+           id,
+           logger
 
 
 [TYPECHECK]

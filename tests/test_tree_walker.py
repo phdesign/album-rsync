@@ -3,8 +3,8 @@
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + '/..')
 from unittest.mock import MagicMock, patch, call
-import tests.helpers
 import pytest
+import tests.helpers
 from album_rsync.tree_walker import TreeWalker
 from album_rsync.file_info import FileInfo
 from album_rsync.folder_info import FolderInfo
@@ -69,27 +69,27 @@ class TestTreeWalker:
         walker.walk()
 
         self.mock_print.assert_has_calls_exactly([
-            call(u"├─── A File".encode('utf-8')),
-            call(u"└─── B File".encode('utf-8'))
+            call("├─── A File"),
+            call("└─── B File")
         ])
-        self.mock_logger.info.assert_called_once_with("0 directories, 2 files read in 0.0 sec")
+        self.mock_logger.info.assert_called_once_with("0 directories, 2 files read in 0 sec")
 
-    # @pytest.mark.skip(reason="Ligitimately broken, I just don't have a good fix for it")
-    # def test_should_not_print_connector_when_printing_root_files_given_folders_are_hidden(self):
-        # self.config.root_files = True
-        # walker = TreeWalker(self.config, self.storage)
-        # tests.helpers.setup_storage(self.storage, [
-            # {'folder': self.root_folder, 'files': [self.file_one, self.file_two]},
-            # {'folder': self.folder_one, 'files': []}
-        # ])
+    @pytest.mark.skip(reason="Ligitimately broken, I just don't have a good fix for it")
+    def test_should_not_print_connector_when_printing_root_files_given_folders_are_hidden(self):
+        self.config.root_files = True
+        walker = TreeWalker(self.config, self.storage)
+        tests.helpers.setup_storage(self.storage, [
+            {'folder': self.root_folder, 'files': [self.file_one, self.file_two]},
+            {'folder': self.folder_one, 'files': []}
+        ])
 
-        # walker.walk()
+        walker.walk()
 
-        # self.mock_print.assert_has_calls_exactly([
-            # call(u"├─── A File".encode('utf-8')),
-            # call(u"└─── B File".encode('utf-8'))
-        # ])
-        # self.mock_logger.info.assert_called_once_with("0 directories, 2 files (excluding 1 empty directories) read in 0.0 sec")
+        self.mock_print.assert_has_calls_exactly([
+            call("├─── A File"),
+            call("└─── B File")
+        ])
+        self.mock_logger.info.assert_called_once_with("0 directories, 2 files (excluding 1 empty directories) read in 0 sec")
 
     # def test_should_not_print_root_files_given_root_files_disabled(self):
         # self.config.root_files = False

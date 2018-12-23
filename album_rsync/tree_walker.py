@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import time
 import logging
 from rx import Observable, AnonymousObservable
@@ -7,9 +6,9 @@ from .walker import Walker
 from .root_folder_info import RootFolderInfo
 from .utils import unpack
 
-UNICODE_LEAF = u"├─── ".encode('utf-8')
-UNICODE_LAST_LEAF = u"└─── ".encode('utf-8')
-UNICODE_BRANCH = u"│   ".encode('utf-8')
+UNICODE_LEAF = "├─── "
+UNICODE_LAST_LEAF = "└─── "
+UNICODE_BRANCH = "│   "
 UNICODE_LAST_BRANCH = "    "
 logger = logging.getLogger(__name__)
 
