@@ -54,7 +54,7 @@ class Config:
         return getattr(self._args, name)
 
     def read(self):
-        parser = argparse.ArgumentParser(description='A python script to manage synchronising a local directory of photos to flickr', prog=__packagename__)
+        parser = argparse.ArgumentParser(description='A python script to manage synchronising a local directory of photos with a remote service based on an rsync interaction pattern.', prog=__packagename__)
         parser.add_argument('src', type=str, nargs='?',
                             help='the source directory to copy or list files from, or FLICKR to specify flickr')
         parser.add_argument('dest', type=str, nargs='?',
