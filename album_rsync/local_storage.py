@@ -55,12 +55,12 @@ class LocalStorage(Storage):
             if self._should_include(name, self._config.include, self._config.exclude) and os.path.isfile(path)
         ]
 
-    def copy_file(self, file_info, folder_name, dest_storage):
-        src = file_info.full_path
+    def copy_file(self, fileinfo, folder_name, dest_storage):
+        src = fileinfo.full_path
         if isinstance(dest_storage, RemoteStorage):
-            dest_storage.upload(src, folder_name, file_info.name, file_info.checksum)
+            dest_storage.upload(src, folder_name, fileinfo.name, fileinfo.checksum)
         else:
-            relative_path = os.path.join(folder_name, file_info.name)
+            relative_path = os.path.join(folder_name, fileinfo.name)
             dest = os.path.join(dest_storage.path, relative_path)
             mkdirp(dest)
             shutil.copyfile(src, dest)

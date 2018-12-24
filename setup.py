@@ -30,7 +30,7 @@ setup(
     license='MIT',
     keywords=['flickr', 'sync', 'rsync', 'photo', 'media', 'google', 'photos'],
     install_requires=[
-        # 'flickr_api>=0.5beta',
+        'flickr_api>=0.5beta',
         'rx',
         'backoff'
     ],
