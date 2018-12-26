@@ -56,7 +56,7 @@ class FlickrStorage(RemoteStorage):
         walker = self._resiliently.call(flickr_api.objects.Walker, self._user.getPhotosets)
         for photoset in walker:
             self._photosets[photoset.id] = photoset
-            folder = FolderInfo(id=photoset.id, name=photoset.title.encode('utf-8'))
+            folder = FolderInfo(id=photoset.id, name=photoset.title)
             if self._should_include(folder.name, self._config.include_dir, self._config.exclude_dir):
                 yield folder
 
@@ -96,7 +96,6 @@ class FlickrStorage(RemoteStorage):
     def download(self, fileinfo, dest):
         """
         Downloads a photo from Flickr to local file system
-.vscode/
 
         Args:
             fileinfo: The file info object (as returned by list_files) of the file to download
@@ -157,10 +156,10 @@ class FlickrStorage(RemoteStorage):
             self.download(fileinfo, dest)
 
     def _get_folder_by_name(self, name):
-        return next((x for x in self._photosets.values() if x.title.encode('utf-8').lower() == name.lower()), None)
+        return next((x for x in self._photosets.values() if x.title.lower() == name.lower()), None)
 
     def _get_file_info(self, photo):
-        name = photo.title.encode('utf-8') if photo.title else photo.id
+        name = photo.title if photo.title else photo.id
         checksum = None
         extension = None
         if photo.tags:
@@ -208,4 +207,3 @@ class FlickrStorage(RemoteStorage):
 Use -v / --verbose to list the ensure the correct settings are being used
 Go to http://www.flickr.com/services/apps/create/apply to apply for a Flickr API key""")
             exit(1)
-
