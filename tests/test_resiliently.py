@@ -4,8 +4,8 @@ import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + '/..')
 from unittest.mock import MagicMock, patch, call
 from urllib.error import URLError
-import tests.helpers    #pylint: disable=unused-import
 import pytest
+import tests.helpers    #pylint: disable=unused-import
 from album_rsync.resiliently import Resiliently
 
 class TestResiliently:

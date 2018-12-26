@@ -1,3 +1,3 @@
-include flickr-rsync.ini
+include album-rsync.ini
 include LICENSE
 include README.md

@@ -277,11 +277,7 @@ $ python setup.py sdist upload
 ## Running tests
 
 ```
-$ python setup.py test -q
-```
-Or
-```
-$ python -m unittest discover -s tests -p '*_test.py'
+$ python setup.py test
 ```
 
 ## Tips
