@@ -53,7 +53,7 @@ class FlickrStorage(RemoteStorage):
         """
         self._authenticate()
 
-        walker = self._resiliently.call(flickr_api.objects.Walker, self._user.getPhotosets)
+        walker = self._resiliently.call(flickr_api.objects.Walker, self._user.getPhotosets)     #pylint: disable=no-member
         for photoset in walker:
             self._photosets[photoset.id] = photoset
             folder = FolderInfo(id=photoset.id, name=photoset.title)
@@ -84,7 +84,7 @@ class FlickrStorage(RemoteStorage):
         else:
             walker = self._resiliently.call(
                 flickr_api.objects.Walker,
-                self._user.getNotInSetPhotos,
+                self._user.getNotInSetPhotos,     #pylint: disable=no-member
                 extras='original_format,tags')
 
         for photo in walker:

@@ -30,12 +30,12 @@ setup(
     license='MIT',
     keywords=['flickr', 'sync', 'rsync', 'photo', 'media', 'google', 'photos'],
     install_requires=[
-        'flickr_api>=0.6.1-65effbe',
+        'flickr_api',
         'rx',
         'backoff'
     ],
     dependency_links=[
-        'https://github.com/alexis-mignon/python-flickr-api/tarball/65effbe#egg=flickr_api-0.6.1-65effbe'
+        'git+git://github.com/alexis-mignon/python-flickr-api@65effbe#egg=flickr_api'
     ],
     setup_requires=['pytest-runner', 'pytest-pylint'],
     tests_require=['pytest', 'pylint'],
