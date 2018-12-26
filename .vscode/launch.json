@@ -12,9 +12,10 @@
             "env": { "PYTHONPATH": "${workspaceRoot}" },
             "console": "integratedTerminal",
             "args": [
-                "flickr",
+                "~/Pictures/Flickr",
                 "--list-only",
-                "--list-folders"
+                "--list-folders",
+                "--list-sort"
             ]
        }
     ]

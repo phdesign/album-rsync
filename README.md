@@ -4,7 +4,7 @@ A python script to manage synchronising a local directory of photos with a remot
 
 ## Requirements
 
-Requires Python 3.
+Supports Python 3.6+
 See requirements.txt for list of dependencies.
 
 ## Installation
@@ -366,10 +366,8 @@ And in future put double quotes around your tag to retain special characters
 
 ## TODO
 
-* Handle nested directories (merge with separator) (apply --include-dir after merging)
+* Handle nested directories. Merge with separator like `parent_child`. Apply --include-dir after merging
 * List duplicate files
-* Use checksum matching to avoid uploading duplicate files
-* Multi-threading - is it needed?
 * Webpage for successful Flickr login
 * Optimise - why does sort files seem to run faster?!
 * Fix duplicate albums issue
