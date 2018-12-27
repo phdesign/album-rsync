@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+#pylint: disable=invalid-name
 
 """
 Python setuptools install script.
@@ -11,21 +12,28 @@ $ python setup.py develop               # install symlink for development
 $ python setup.py develop --uninstall   # uninstall for development
 """
 
+import re
 from setuptools import setup
-from album_rsync._version import __version__
+
+VERSION_FILE = "album_rsync/_version.py"
+try:
+    version_content = open(VERSION_FILE, "r").read()
+    version = re.search(r"__version__ = '(.+?)'", version_content).group(1)
+except:
+    raise RuntimeError("Could not read version file.")
 
 with open('README.md') as f:
-    readme = f.read()    # pylint: disable=invalid-name
+    readme = f.read()
 
 setup(
     name='album-rsync',
-    version=__version__,
+    version=version,
     description='A python script to manage synchronising a local directory of photos with a remote service based on an rsync interaction pattern',
     long_description=readme,
     author='Paul Heasley',
     author_email='paul@phdesign.com.au',
     url='http://www.phdesign.com.au/album-rsync',
-    download_url=f'https://github.com/phdesign/album-rsync/archive/v{__version__}.tar.gz',
+    download_url=f'https://github.com/phdesign/album-rsync/archive/v{version}.tar.gz',
     packages=['album_rsync'],
     license='MIT',
     keywords=['flickr', 'sync', 'rsync', 'photo', 'media', 'google', 'photos'],
