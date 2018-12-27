@@ -108,7 +108,8 @@ class FlickrStorage(RemoteStorage):
         photo = self._photos[fileinfo.id]
         is_video = photo.media == 'video'
         size = 'Video Original' if is_video else 'Original'
-        self._resiliently.call(photo.save, dest, size_label=size)
+        dest_without_extn = os.path.splitext(dest)[0]
+        self._resiliently.call(photo.save, dest_without_extn, size_label=size)
 
     def upload(self, src, folder_name, file_name, checksum):
         """
@@ -122,15 +123,15 @@ class FlickrStorage(RemoteStorage):
         Raises:
             KeyError: If the fileinfo.id is unrecognised
         """
-        extension = os.path.splitext(file_name)[1][1:]
-        tags = '{} "{}={}"'.format(self._config.tags, EXTENSION_PREFIX, extension)
+        title, extension = os.path.splitext(file_name)
+        tags = '{} "{}={}"'.format(self._config.tags, EXTENSION_PREFIX, extension[1:])
         if checksum:
             tags = '{} {}={}'.format(tags, CHECKSUM_PREFIX, checksum)
 
         # Have to pass arguments as a dict because `async` is a keyword
         photo = self._resiliently.call(flickr_api.upload, **{
             'photo_file': src,
-            'title': os.path.splitext(file_name)[0],
+            'title': title,
             'tags': tags.strip(),
             'is_public': self._config.is_public,
             'is_friend': self._config.is_friend,
