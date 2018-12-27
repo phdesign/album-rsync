@@ -4,8 +4,9 @@ A python script to manage synchronising a local directory of photos with a remot
 
 ## Requirements
 
+See [requirements.txt](requirements.txt) for list of dependencies.
 Supports Python 3.6+
-See requirements.txt for list of dependencies.
+For Python 2, see https://github.com/phdesign/flickr-rsync
 
 ## Installation
 
