@@ -7,4 +7,7 @@ lint:
 test:
 	python setup.py test
 
-.PHONY: init lint test
+publish:
+	python setup.py sdist upload
+
+.PHONY: init lint test publish

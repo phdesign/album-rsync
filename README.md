@@ -4,8 +4,8 @@ A python script to manage synchronising a local directory of photos with a remot
 
 ## Requirements
 
-See [requirements.txt](requirements.txt) for list of dependencies.
-Supports Python 3.6+
+See [requirements.txt](requirements.txt) for list of dependencies.  
+Supports Python 3.6+  
 For Python 2, see https://github.com/phdesign/flickr-rsync
 
 ## Installation
@@ -264,12 +264,12 @@ To print all properties of variable photo.
 
 Checkout https://medium.com/instamojo-matters/become-a-pdb-power-user-e3fc4e2774b2
 
-## Deploying
+## Publishing
 
 Based on [http://peterdowns.com/posts/first-time-with-pypi.html](http://peterdowns.com/posts/first-time-with-pypi.html)
 
-1. Create a new GitHub release (e.g. v1.1.1)
-2. Update `flickr_rsync/_version.py` with the new version number (e.g. 1.1.1)
+1. Update `flickr_rsync/_version.py` with the new version number (e.g. 1.1.1)
+2. Create a new GitHub release (e.g. `git tag -a v1.1.1 -m "Version v1.1.1 && git push --tags`)
 3. Push to PyPI
 ```
 $ python setup.py sdist upload
