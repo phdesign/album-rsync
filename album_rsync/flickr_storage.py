@@ -2,6 +2,7 @@ import os
 import re
 import webbrowser
 import logging
+import urllib.error
 from tempfile import NamedTemporaryFile
 import flickr_api
 from .storage import RemoteStorage
@@ -10,7 +11,7 @@ from .folder_info import FolderInfo
 from .local_storage import mkdirp
 from .config import __packagename__
 
-TOKEN_FILENAME = __packagename__ + '.token'
+PROVIDER_NAME = 'flickr'
 """
 About Tags
 ----------
@@ -182,15 +183,13 @@ class FlickrStorage(RemoteStorage):
         if self._is_authenticated:
             return
 
-        flickr_api.set_keys(api_key=self._config.api_key, api_secret=self._config.api_secret)
-
-        token_path = self._config.locate_datafile(TOKEN_FILENAME)
         try:
-            if token_path:
-                auth_handler = flickr_api.auth.AuthHandler.load(token_path)
+            flickr_api.set_keys(api_key=self._config.api_key, api_secret=self._config.api_secret)
+            tokens = self._config.load_tokens(PROVIDER_NAME)
+            if tokens:
+                auth_handler = flickr_api.auth.AuthHandler.fromdict(tokens)
 
             else:
-                token_path = self._config.default_datafile(TOKEN_FILENAME)
                 auth_handler = flickr_api.auth.AuthHandler()
                 permissions_requested = OAUTH_PERMISSIONS
                 url = auth_handler.get_authorization_url(permissions_requested)
@@ -198,13 +197,15 @@ class FlickrStorage(RemoteStorage):
                 print("Please enter the OAuth verifier tag once logged in:")
                 verifier_code = input("> ")
                 auth_handler.set_verifier(verifier_code)
-                auth_handler.save(token_path)
+                self._config.save_tokens(PROVIDER_NAME, auth_handler.todict())
 
             flickr_api.set_auth_handler(auth_handler)
             self._user = flickr_api.test.login()
             self._is_authenticated = True
-        except (ValueError, flickr_api.flickrerrors.FlickrError) as err:
-            print(f"""{err}
-Use -v / --verbose to list the ensure the correct settings are being used
-Go to http://www.flickr.com/services/apps/create/apply to apply for a Flickr API key""")
+
+        except Exception as err:
+            print("Unable to authenticate with Flickr\n"
+                  f"{err}\n"
+                  "Use -v / --verbose to list the ensure the correct settings are being used\n"
+                  "Go to http://www.flickr.com/services/apps/create/apply to apply for a Flickr API key")
             exit(1)

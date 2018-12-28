@@ -1,5 +1,5 @@
 import os, sys
-from configparser import SafeConfigParser
+import configparser
 import argparse
 import logging
 from distutils.util import strtobool
@@ -7,6 +7,7 @@ from ._version import __version__
 
 __packagename__ = 'album-rsync'
 CONFIG_FILENAME = __packagename__ + '.ini'
+TOKEN_FILENAME = __packagename__ + '.token'
 logger = logging.getLogger(__name__)
 
 FILES_SECTION = 'Files'
@@ -130,9 +131,26 @@ class Config:
     def default_datafile(self, filename):
         return os.path.join(os.path.expanduser('~'), '.' + filename)
 
+    def load_tokens(self, provider):
+        token_path = self.locate_datafile(TOKEN_FILENAME)
+        if not token_path:
+            return None
+        config = configparser.ConfigParser()
+        config.read(token_path)
+        return dict(config.items(provider)) if config.has_section(provider) else None
+
+    def save_tokens(self, provider, tokens):
+        token_path = self.locate_datafile(TOKEN_FILENAME)
+        if not token_path:
+            token_path = self.default_datafile(TOKEN_FILENAME)
+        config = configparser.ConfigParser()
+        config[provider] = tokens
+        with open(token_path, 'w') as f:
+            config.write(f)
+
     def _read_ini(self, ini_path):
         options = DEFAULTS.copy()
-        config = SafeConfigParser()
+        config = configparser.SafeConfigParser()
 
         if ini_path:
             config.read(ini_path)
