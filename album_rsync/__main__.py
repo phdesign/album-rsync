@@ -6,6 +6,7 @@ from .config import Config
 from .sync import Sync
 from .resiliently import Resiliently
 from .flickr_storage import FlickrStorage
+from .google_storage import GoogleStorage
 from .local_storage import LocalStorage
 from .fake_storage import FakeStorage
 from .tree_walker import TreeWalker
@@ -14,6 +15,8 @@ from .csv_walker import CsvWalker
 logger = logging.getLogger(__name__)
 
 def _get_storage(config, path):
+    if path.lower() == Config.PATH_GOOGLE:
+        return GoogleStorage(config)
     if path.lower() == Config.PATH_FLICKR:
         resiliently = Resiliently(config)
         return FlickrStorage(config, resiliently)

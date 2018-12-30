@@ -9,16 +9,6 @@ from .folder_info import FolderInfo
 
 logger = logging.getLogger(__name__)
 
-def mkdirp(path):
-    """
-    Creates all missing folders in the path
-
-    Args:
-        path: A file system path to create, may include a filename (ignored)
-    """
-    if not os.path.exists(os.path.dirname(path)):
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-
 class LocalStorage(Storage):
 
     def __init__(self, config, path):
@@ -62,7 +52,7 @@ class LocalStorage(Storage):
         else:
             relative_path = os.path.join(folder_name, fileinfo.name)
             dest = os.path.join(dest_storage.path, relative_path)
-            mkdirp(dest)
+            self.mkdirp(dest)
             shutil.copyfile(src, dest)
 
     def _should_include(self, name, include_pattern, exclude_pattern):

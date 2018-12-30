@@ -2,16 +2,13 @@ import os
 import re
 import webbrowser
 import logging
-import urllib.error
 from tempfile import NamedTemporaryFile
 import flickr_api
 from .storage import RemoteStorage
 from .file_info import FileInfo
 from .folder_info import FolderInfo
-from .local_storage import mkdirp
 from .config import __packagename__
 
-PROVIDER_NAME = 'flickr'
 """
 About Tags
 ----------
@@ -105,7 +102,7 @@ class FlickrStorage(RemoteStorage):
         Raises:
             KeyError: If the fileinfo.id is unrecognised
         """
-        mkdirp(dest)
+        self.mkdirp(dest)
         photo = self._photos[fileinfo.id]
         is_video = photo.media == 'video'
         size = 'Video Original' if is_video else 'Original'
@@ -125,7 +122,7 @@ class FlickrStorage(RemoteStorage):
             KeyError: If the fileinfo.id is unrecognised
         """
         title, extension = os.path.splitext(file_name)
-        tags = '{} "{}={}"'.format(self._config.tags, EXTENSION_PREFIX, extension[1:])
+        tags = '{} "{}={}"'.format(self._config.flickr_tags, EXTENSION_PREFIX, extension[1:])
         if checksum:
             tags = '{} {}={}'.format(tags, CHECKSUM_PREFIX, checksum)
 
@@ -134,9 +131,9 @@ class FlickrStorage(RemoteStorage):
             'photo_file': src,
             'title': title,
             'tags': tags.strip(),
-            'is_public': self._config.is_public,
-            'is_friend': self._config.is_friend,
-            'is_family': self._config.is_family,
+            'is_public': self._config.flickr_is_public,
+            'is_friend': self._config.flickr_is_friend,
+            'is_family': self._config.flickr_is_family,
             'async': 0})
 
         if folder_name:
@@ -184,8 +181,8 @@ class FlickrStorage(RemoteStorage):
             return
 
         try:
-            flickr_api.set_keys(api_key=self._config.api_key, api_secret=self._config.api_secret)
-            tokens = self._config.load_tokens(PROVIDER_NAME)
+            flickr_api.set_keys(api_key=self._config.flickr_api_key, api_secret=self._config.flickr_api_secret)
+            tokens = self._config.load_tokens(self._config.PATH_FLICKR)
             if tokens:
                 auth_handler = flickr_api.auth.AuthHandler.fromdict(tokens)
 
@@ -197,15 +194,16 @@ class FlickrStorage(RemoteStorage):
                 print("Please enter the OAuth verifier tag once logged in:")
                 verifier_code = input("> ")
                 auth_handler.set_verifier(verifier_code)
-                self._config.save_tokens(PROVIDER_NAME, auth_handler.todict())
+                self._config.save_tokens(self._config.PATH_FLICKR, auth_handler.todict())
 
             flickr_api.set_auth_handler(auth_handler)
             self._user = flickr_api.test.login()
             self._is_authenticated = True
 
-        except Exception as err:
-            print("Unable to authenticate with Flickr\n"
-                  f"{err}\n"
-                  "Use -v / --verbose to list the ensure the correct settings are being used\n"
-                  "Go to http://www.flickr.com/services/apps/create/apply to apply for a Flickr API key")
+        except Exception as err:    #pylint: disable=broad-except
+            logger.error(
+                "Unable to authenticate with Flickr\n"
+                f"{err}\n"
+                "Use -v / --verbose to list the ensure the correct settings are being used\n"
+                "Go to http://www.flickr.com/services/apps/create/apply to apply for a Flickr API key")
             exit(1)

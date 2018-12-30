@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 FILES_SECTION = 'Files'
 FLICKR_SECTION = 'Flickr'
+GOOGLE_SECTION = 'Google'
 NETWORK_SECTION = 'Network'
 OPTIONS_SECTION = 'Options'
 
@@ -31,12 +32,14 @@ DEFAULTS = {
     'dry_run': False,
     'throttling': 0.5,
     'retry': 5,
-    'api_key': '',
-    'api_secret': '',
-    'tags': __packagename__,
-    'is_public': 0,
-    'is_friend': 0,
-    'is_family': 0,
+    'flickr_api_key': '',
+    'flickr_api_secret': '',
+    'flickr_tags': __packagename__,
+    'flickr_is_public': 0,
+    'flickr_is_friend': 0,
+    'flickr_is_family': 0,
+    'google_api_key': '',
+    'google_api_secret': '',
     'verbose': False
 }
 
@@ -45,6 +48,7 @@ class Config:
     LIST_FORMAT_TREE = 'tree'
     LIST_FORMAT_CSV = 'csv'
     PATH_FLICKR = 'flickr'
+    PATH_GOOGLE = 'google'
     PATH_FAKE = 'fake'
 
     def __init__(self):
@@ -86,12 +90,16 @@ class Config:
                             help='the delay in seconds (may be decimal) before each network call')
         parser.add_argument('--retry', type=int, metavar='NUM',
                             help='the number of times to retry a network call (using exponential backoff) before failing')
-        parser.add_argument('--api-key', type=str,
+        parser.add_argument('--flickr-api-key', type=str,
                             help='flickr API key')
-        parser.add_argument('--api-secret', type=str,
+        parser.add_argument('--flickr-api-secret', type=str,
                             help='flickr API secret')
-        parser.add_argument('--tags', type=str, metavar='"TAG1 TAG2"',
+        parser.add_argument('--flickr-tags', type=str, metavar='"TAG1 TAG2"',
                             help='space seperated list of tags to apply to uploaded files on flickr')
+        parser.add_argument('--google-api-key', type=str,
+                            help='Google API key')
+        parser.add_argument('--google-api-secret', type=str,
+                            help='Google API secret')
         parser.add_argument('-v', '--verbose', action='store_true',
                             help='increase verbosity')
         parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
@@ -141,9 +149,11 @@ class Config:
 
     def save_tokens(self, provider, tokens):
         token_path = self.locate_datafile(TOKEN_FILENAME)
+        config = configparser.ConfigParser()
         if not token_path:
             token_path = self.default_datafile(TOKEN_FILENAME)
-        config = configparser.ConfigParser()
+        else:
+            config.read(token_path)
         config[provider] = tokens
         with open(token_path, 'w') as f:
             config.write(f)
@@ -158,6 +168,7 @@ class Config:
             self._read_network_section(config, options)
             self._read_options_section(config, options)
             self._read_flickr_section(config, options)
+            self._read_google_section(config, options)
 
         return options
 
@@ -200,7 +211,15 @@ class Config:
             'is_friend': int,
             'is_family': int
         })
-        options.update(items)
+        prefixed_items = {'flickr_' + k: v for (k, v) in items.items()}
+        options.update(prefixed_items)
+
+    def _read_google_section(self, config, options):
+        if not config.has_section(GOOGLE_SECTION):
+            return
+        items = self._read_section(config, GOOGLE_SECTION, {})
+        prefixed_items = {'google_' + k: v for (k, v) in items.items()}
+        options.update(prefixed_items)
 
     def _read_section(self, config, section, types):
         items = dict(config.items(section))
