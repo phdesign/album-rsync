@@ -1,9 +1,12 @@
 import webbrowser
 import urllib.parse
 import uuid
+import logging
 import requests
 
 PAGE_SIZE = 100
+BASE_URL = 'https://photoslibrary.googleapis.com'
+logger = logging.getLogger(__name__)
 
 class GoogleApi:
 
@@ -13,7 +16,11 @@ class GoogleApi:
         self._refresh_token = None
 
     def list_albums(self):
-        return self._get('https://photoslibrary.googleapis.com/v1/albums')
+        return self._get(f'{BASE_URL}/v1/albums')
+
+    def create_album(self, title):
+        data = {'album': {'title': title}}
+        return self._post(f'{BASE_URL}/v1/albums', data=data)
 
     def get_media_in_folder(self, album_id):
         data = {
@@ -21,7 +28,7 @@ class GoogleApi:
             'albumId': album_id
         }
         while True:
-            walker = self._post('https://photoslibrary.googleapis.com/v1/mediaItems:search', data)
+            walker = self._post(f'{BASE_URL}/v1/mediaItems:search', data)
             data['pageToken'] = walker['nextPageToken'] if 'nextPageToken' in walker else None
 
             for media_item in walker['mediaItems']:
@@ -34,7 +41,7 @@ class GoogleApi:
         self._download(url, dest)
 
     def upload(self, src_path, file_name, folder_id):
-        upload_token = self._upload('https://photoslibrary.googleapis.com/v1/uploads', src_path, file_name)
+        upload_token = self._upload(f'{BASE_URL}/v1/uploads', src_path, file_name)
         data = {
             'newMediaItems': [
                 {
@@ -47,7 +54,7 @@ class GoogleApi:
         }
         if folder_id:
             data['albumId'] = folder_id
-        self._post('https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate', data=data)
+        self._post(f'{BASE_URL}/v1/mediaItems:batchCreate', data=data)
 
     def _get(self, url, params=None):
         resp = self._authenticated_call(requests.get, url, params=params)
@@ -75,7 +82,6 @@ class GoogleApi:
         }
         resp = self._authenticated_call(requests.post, url, data=data, headers=headers)
         upload_token = resp.text
-        print(resp.status_code)
         return upload_token
 
     def _authenticated_call(self, func, *args, **kwargs):
@@ -86,7 +92,7 @@ class GoogleApi:
         kwargs['headers']['Authorization'] = 'Bearer ' + self._access_token
         resp = func(*args, **kwargs)
         if resp.status_code == 401:
-            print('refreshing token...')
+            logger.info('refreshing token...')
             self._get_refresh_token()
             kwargs['headers']['Authorization'] = 'Bearer ' + self._access_token
             resp = func(*args, **kwargs)
@@ -112,7 +118,7 @@ class GoogleApi:
             return
 
         tokens = self._config.load_tokens(self._config.PATH_GOOGLE)
-        if not tokens:
+        if not tokens or not tokens['refresh_token']:
             challenge = "{}{}".format(uuid.uuid4().hex, uuid.uuid4().hex)
             url = self._build_auth_url(challenge)
             webbrowser.open(url)

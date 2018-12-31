@@ -5,7 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Module",
+            "name": "Upload folder to Google",
+            "type": "python",
+            "request": "launch",
+            "module": "album_rsync",
+            "env": { "PYTHONPATH": "${workspaceRoot}" },
+            "console": "integratedTerminal",
+            "args": [
+                "~/Pictures/Flickr",
+                "google",
+                "--include-dir", "xmas card"
+            ]
+        },
+        {
+            "name": "List local Flickr folder",
             "type": "python",
             "request": "launch",
             "module": "album_rsync",
@@ -16,6 +29,18 @@
                 "--list-only",
                 "--list-folders",
                 "--list-sort"
+            ]
+        },
+        {
+            "name": "List Google photos",
+            "type": "python",
+            "request": "launch",
+            "module": "album_rsync",
+            "env": { "PYTHONPATH": "${workspaceRoot}" },
+            "console": "integratedTerminal",
+            "args": [
+                "google",
+                "--list-only"
             ]
        }
     ]

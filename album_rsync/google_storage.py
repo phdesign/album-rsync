@@ -11,6 +11,7 @@ class GoogleStorage(RemoteStorage):
     def __init__(self, config):
         self._config = config
         self._api = GoogleApi(config)
+        self._folders = {}
 
     def list_folders(self):
         """
@@ -22,6 +23,7 @@ class GoogleStorage(RemoteStorage):
         walker = self._api.list_albums()
         for album in walker['albums']:
             folder = FolderInfo(id=album['id'], name=album['title'])
+            self._folders[folder.id] = folder
             if self._should_include(folder.name, self._config.include_dir, self._config.exclude_dir):
                 yield folder
 
@@ -71,13 +73,13 @@ class GoogleStorage(RemoteStorage):
             KeyError: If the file_info.id is unrecognised
         """
 
-        # if folder_name:
-            # folder = self._get_folder_by_name(folder_name)
-            # if not folder:
-                # folder = self._api.create_album(folder_name)
-                # self._folders[folder.id] = folder
-            # folder_id = folder.id
-        folder_id = 'AGlL7ELv-O0JKgcCPCLumzEoYPODvi-ANHTdai82oLs52wrvB1hzkfhcIOKfQGEklbj5VaKA3VJI'
+        if folder_name:
+            folder = self._get_folder_by_name(folder_name)
+            if not folder:
+                album = self._api.create_album(folder_name)
+                folder = FolderInfo(id=album['id'], name=album['title'])
+                self._folders[folder.id] = folder
+            folder_id = folder.id
         self._api.upload(src, file_name, folder_id)
 
     def copy_file(self, fileinfo, folder_name, dest_storage):
@@ -91,7 +93,7 @@ class GoogleStorage(RemoteStorage):
             self.download(fileinfo, dest)
 
     def _get_folder_by_name(self, name):
-        return next((x for x in self._folders.values() if x.title.lower() == name.lower()), None)
+        return next((x for x in self._folders.values() if x.name.lower() == name.lower()), None)
 
     def _get_file_info(self, photo):
         name = photo['filename'] if photo['filename'] else photo['id']

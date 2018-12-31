@@ -26,7 +26,7 @@ namespace:predicate=value
 a namespace, i.e. upcoming [who is going to care about this tag]
 a predicate, i.e. event [what does this apply to]
 a value, i.e. 123456 [which one is this]
-"""
+"""     #pylint: disable=pointless-string-statement
 CHECKSUM_PREFIX = 'checksum:md5'
 EXTENSION_PREFIX = 'flickrrsync:extn'
 OAUTH_PERMISSIONS = 'write'
