@@ -30,6 +30,8 @@ class GoogleApi:
         while True:
             walker = self._post(f'{BASE_URL}/v1/mediaItems:search', data)
             data['pageToken'] = walker['nextPageToken'] if 'nextPageToken' in walker else None
+            if 'mediaItems'not in walker:
+                break
 
             for media_item in walker['mediaItems']:
                 yield media_item
