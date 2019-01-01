@@ -26,7 +26,7 @@ DEFAULTS = {
     'checksum': False,
     'include': r'\.(jpg|jpeg|png|gif|tiff|tif|bmp|psd|svg|raw|wmv|avi|mov|mpg|mp4|3gp|ogg|ogv|m2ts)$',
     'include_dir': '',
-    'exclude': '^\.',
+    'exclude': r'^\.',
     'exclude_dir': '',
     'root_files': False,
     'dry_run': False,

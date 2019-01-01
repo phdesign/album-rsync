@@ -1,4 +1,5 @@
 import os
+import re
 from abc import abstractmethod
 
 class Storage:
@@ -25,13 +26,6 @@ class Storage:
         if not os.path.exists(os.path.dirname(path)):
             os.makedirs(os.path.dirname(path), exist_ok=True)
 
-
-class RemoteStorage(Storage):
-
-    @abstractmethod
-    def download(self, fileinfo, dest):
-        pass
-
-    @abstractmethod
-    def upload(self, src, folder_name, file_name, checksum):
-        pass
+    def _should_include(self, name, include_pattern, exclude_pattern):
+        return ((not include_pattern or re.search(include_pattern, name, flags=re.IGNORECASE)) and
+                (not exclude_pattern or not re.search(exclude_pattern, name, flags=re.IGNORECASE)))

@@ -1,9 +1,9 @@
 import os
-import re
 import hashlib
 import shutil
 import logging
-from .storage import Storage, RemoteStorage
+from .storage import Storage
+from .remote_storage import RemoteStorage
 from .file_info import FileInfo
 from .folder_info import FolderInfo
 
@@ -54,7 +54,3 @@ class LocalStorage(Storage):
             dest = os.path.join(dest_storage.path, relative_path)
             self.mkdirp(dest)
             shutil.copyfile(src, dest)
-
-    def _should_include(self, name, include_pattern, exclude_pattern):
-        return ((not include_pattern or re.search(include_pattern, name, flags=re.IGNORECASE)) and
-                (not exclude_pattern or not re.search(exclude_pattern, name, flags=re.IGNORECASE)))

@@ -1,10 +1,7 @@
-import os
-import re
-from tempfile import NamedTemporaryFile
 from .file_info import FileInfo
 from .folder_info import FolderInfo
 from .google_api import GoogleApi
-from .storage import RemoteStorage
+from .remote_storage import RemoteStorage
 
 class GoogleStorage(RemoteStorage):
 
@@ -21,6 +18,8 @@ class GoogleStorage(RemoteStorage):
             A lazy loaded generator function of FolderInfo objects
         """
         walker = self._api.list_albums()
+        if 'albums' not in walker:
+            return
         for album in walker['albums']:
             folder = FolderInfo(id=album['id'], name=album['title'])
             self._folders[folder.id] = folder
@@ -82,23 +81,9 @@ class GoogleStorage(RemoteStorage):
             folder_id = folder.id
         self._api.upload(src, file_name, folder_id)
 
-    def copy_file(self, fileinfo, folder_name, dest_storage):
-        if isinstance(dest_storage, RemoteStorage):
-            temp_file = NamedTemporaryFile()
-            self.download(fileinfo, temp_file.name)
-            dest_storage.upload(temp_file.name, folder_name, fileinfo.name, fileinfo.checksum)
-            temp_file.close()
-        else:
-            dest = os.path.join(dest_storage.path, folder_name, fileinfo.name)
-            self.download(fileinfo, dest)
-
     def _get_folder_by_name(self, name):
         return next((x for x in self._folders.values() if x.name.lower() == name.lower()), None)
 
     def _get_file_info(self, photo):
         name = photo['filename'] if photo['filename'] else photo['id']
         return FileInfo(id=photo['id'], name=name, url=photo['baseUrl'] + '=d')
-
-    def _should_include(self, name, include_pattern, exclude_pattern):
-        return ((not include_pattern or re.search(include_pattern, name, flags=re.IGNORECASE)) and
-                (not exclude_pattern or not re.search(exclude_pattern, name, flags=re.IGNORECASE)))

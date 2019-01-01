@@ -1,10 +1,8 @@
 import os
-import re
 import webbrowser
 import logging
-from tempfile import NamedTemporaryFile
 import flickr_api
-from .storage import RemoteStorage
+from .remote_storage import RemoteStorage
 from .file_info import FileInfo
 from .folder_info import FolderInfo
 from .config import __packagename__
@@ -144,16 +142,6 @@ class FlickrStorage(RemoteStorage):
             else:
                 self._resiliently.call(photoset.addPhoto, photo=photo)
 
-    def copy_file(self, fileinfo, folder_name, dest_storage):
-        if isinstance(dest_storage, RemoteStorage):
-            temp_file = NamedTemporaryFile()
-            self.download(fileinfo, temp_file.name)
-            dest_storage.upload(temp_file.name, folder_name, fileinfo.name, fileinfo.checksum)
-            temp_file.close()
-        else:
-            dest = os.path.join(dest_storage.path, folder_name, fileinfo.name)
-            self.download(fileinfo, dest)
-
     def _get_folder_by_name(self, name):
         return next((x for x in self._photosets.values() if x.title.lower() == name.lower()), None)
 
@@ -171,10 +159,6 @@ class FlickrStorage(RemoteStorage):
         if extension:
             name += "." + extension
         return FileInfo(id=photo.id, name=name, checksum=checksum)
-
-    def _should_include(self, name, include_pattern, exclude_pattern):
-        return ((not include_pattern or re.search(include_pattern, name, flags=re.IGNORECASE)) and
-                (not exclude_pattern or not re.search(exclude_pattern, name, flags=re.IGNORECASE)))
 
     def _authenticate(self):
         if self._is_authenticated:
