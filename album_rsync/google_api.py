@@ -16,7 +16,8 @@ class GoogleApi:
         self._refresh_token = None
 
     def list_albums(self):
-        return self._get(f'{BASE_URL}/v1/albums')
+        resp = self._get(f'{BASE_URL}/v1/albums')
+        return resp.get('albums', [])
 
     def create_album(self, title):
         data = {'album': {'title': title}}

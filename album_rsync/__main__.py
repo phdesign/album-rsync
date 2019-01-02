@@ -11,12 +11,14 @@ from .local_storage import LocalStorage
 from .fake_storage import FakeStorage
 from .tree_walker import TreeWalker
 from .csv_walker import CsvWalker
+from .google_api import GoogleApi
 
 logger = logging.getLogger(__name__)
 
 def _get_storage(config, path):
     if path.lower() == Config.PATH_GOOGLE:
-        return GoogleStorage(config)
+        api = GoogleApi(config)
+        return GoogleStorage(config, api)
     if path.lower() == Config.PATH_FLICKR:
         resiliently = Resiliently(config)
         return FlickrStorage(config, resiliently)

@@ -1,13 +1,12 @@
 from .file_info import FileInfo
 from .folder_info import FolderInfo
-from .google_api import GoogleApi
 from .remote_storage import RemoteStorage
 
 class GoogleStorage(RemoteStorage):
 
-    def __init__(self, config):
+    def __init__(self, config, api):
         self._config = config
-        self._api = GoogleApi(config)
+        self._api = api
         self._folders = {}
 
     def list_folders(self):
