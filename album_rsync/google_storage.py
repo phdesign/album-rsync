@@ -17,9 +17,7 @@ class GoogleStorage(RemoteStorage):
             A lazy loaded generator function of FolderInfo objects
         """
         walker = self._api.list_albums()
-        if 'albums' not in walker:
-            return
-        for album in walker['albums']:
+        for album in walker:
             folder = FolderInfo(id=album['id'], name=album['title'])
             self._folders[folder.id] = folder
             if self._should_include(folder.name, self._config.include_dir, self._config.exclude_dir):

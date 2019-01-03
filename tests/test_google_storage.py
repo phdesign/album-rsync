@@ -30,21 +30,43 @@ class TestGoogleStorage:
     def test_should_list_folders_given_there_are_folders(self, folders_fixture):
         self.api.list_albums.return_value = {'albums': folders_fixture}
         storage = GoogleStorage(self.config, self.api)
-        folders = storage.list_folders()
-        folders_length = sum(1 for _ in folders)
-        assert folders_length == 2
+        folders = list(storage.list_folders())
+        assert len(folders) == 2
 
     def test_should_not_list_folder_given_its_excluded(self, folders_fixture):
         self.config.exclude_dir = 'Folder 1'
         self.api.list_albums.return_value = {'albums': folders_fixture}
         storage = GoogleStorage(self.config, self.api)
-        folders = storage.list_folders()
-        folders_length = sum(1 for _ in folders)
-        assert folders_length == 1
-        # assert next(folders).name == 'Folder 2'
+        folders = list(storage.list_folders())
+        assert len(folders) == 1
+        assert folders[0].name == 'Folder 2'
 
-    def test_should_not_list_folder_given_its_not_included(self):
-        pass
+    def test_should_not_list_folder_given_its_not_included(self, folders_fixture):
+        self.config.include_dir = 'Folder 1'
+        self.api.list_albums.return_value = {'albums': folders_fixture}
+        storage = GoogleStorage(self.config, self.api)
+        folders = list(storage.list_folders())
+        assert len(folders) == 1
+        assert folders[0].name == 'Folder 1'
 
     def test_should_not_list_folders_given_there_are_no_folders(self):
+        self.api.list_albums.return_value = {'albums': []}
+        storage = GoogleStorage(self.config, self.api)
+        folders = list(storage.list_folders())
+        assert not folders
+
+    def test_should_list_files_given_there_are_files(self, files_fixture):
         pass
+
+    def test_should_raise_not_implemented_when_root_folder(self):
+        pass
+
+    def test_should_not_list_file_given_its_excluded(self, files_fixture):
+        pass
+
+    def test_should_not_list_file_given_its_not_included(self, files_fixture):
+        pass
+
+    def test_should_not_list_files_given_there_are_no_files(self):
+        pass
+    
