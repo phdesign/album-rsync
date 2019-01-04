@@ -1,5 +1,6 @@
 from .file_info import FileInfo
 from .folder_info import FolderInfo
+from .root_folder_info import RootFolderInfo
 from .remote_storage import RemoteStorage
 
 class GoogleStorage(RemoteStorage):
@@ -7,7 +8,7 @@ class GoogleStorage(RemoteStorage):
     def __init__(self, config, api):
         self._config = config
         self._api = api
-        self._folders = {}
+        self._folders = None
 
     def list_folders(self):
         """
@@ -16,12 +17,8 @@ class GoogleStorage(RemoteStorage):
         Returns:
             A lazy loaded generator function of FolderInfo objects
         """
-        walker = self._api.list_albums()
-        for album in walker:
-            folder = FolderInfo(id=album['id'], name=album['title'])
-            self._folders[folder.id] = folder
-            if self._should_include(folder.name, self._config.include_dir, self._config.exclude_dir):
-                yield folder
+        return (folder for folder in self._list_all_folders_with_cache()
+                if self._should_include(folder.name, self._config.include_dir, self._config.exclude_dir))
 
     def list_files(self, folder):
         """
@@ -38,9 +35,13 @@ class GoogleStorage(RemoteStorage):
             KeyError: If folder.id is unrecognised
             NotImplementedError: If folder is the root folder
         """
+        if isinstance(folder, RootFolderInfo):
+            raise NotImplementedError
         media_items = self._api.get_media_in_folder(folder.id)
-        return filter(lambda x: self._should_include(x.name, self._config.include, self._config.exclude),
-                      (self._get_file_info(photo) for photo in media_items))
+        for item in media_items:
+            fileinfo = self._get_file_info(item)
+            if self._should_include(fileinfo.name, self._config.include, self._config.exclude):
+                yield fileinfo
 
     def download(self, fileinfo, dest):
         """
@@ -74,13 +75,24 @@ class GoogleStorage(RemoteStorage):
             if not folder:
                 album = self._api.create_album(folder_name)
                 folder = FolderInfo(id=album['id'], name=album['title'])
-                self._folders[folder.id] = folder
-            folder_id = folder.id
-        self._api.upload(src, file_name, folder_id)
+                self._folders.append(folder)
+        self._api.upload(src, file_name, folder.id)
 
     def _get_folder_by_name(self, name):
-        return next((x for x in self._folders.values() if x.name.lower() == name.lower()), None)
+        folders = self._list_all_folders_with_cache()
+        return next((x for x in folders if x.name.lower() == name.lower()), None)
 
     def _get_file_info(self, photo):
         name = photo['filename'] if photo['filename'] else photo['id']
         return FileInfo(id=photo['id'], name=name, url=photo['baseUrl'] + '=d')
+
+    def _list_all_folders_with_cache(self):
+        """
+        Return all folders from the server, using a cache to avoid making reptitive calls.
+        This assumes that the list of folders won't change by an external party while this
+        program is running
+        """
+        if not self._folders:
+            albums = self._api.list_albums()
+            self._folders = [FolderInfo(id=album['id'], name=album['title']) for album in albums]
+        return self._folders

@@ -5,6 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Run tests",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceRoot}/setup.py",
+            "console": "integratedTerminal",
+            "args": [
+                "test"
+            ]
+        },
+        {
             "name": "Upload folder to Google",
             "type": "python",
             "request": "launch",
@@ -42,6 +52,6 @@
                 "google",
                 "--list-only"
             ]
-       }
+        }
     ]
 }
