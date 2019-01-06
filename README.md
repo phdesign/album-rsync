@@ -375,3 +375,5 @@ And in future put double quotes around your tag to retain special characters
 * Why does it make 3 api calls for every photo in --list-only --list-sort mode?
 * --mirror. Yep, delete photos from target, but don't make it easy
 * --init to setup a new .ini file and walk through auth process
+* Rename FileInfo > Media, FolderInfo > Album
+* Add throttling and delay to Google
