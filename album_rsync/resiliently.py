@@ -1,10 +1,11 @@
 import logging
 import backoff
-from .throttle import throttle
+from .throttle import Throttle
 
 class Resiliently:
     def __init__(self, config):
         self._config = config
+        self._throttler = Throttle()
         if config.verbose:
             logging.getLogger('backoff').addHandler(logging.StreamHandler())
 
@@ -12,7 +13,7 @@ class Resiliently:
         return self._throttle(self._retry, func, *args, **kwargs)
 
     def _throttle(self, func, *args, **kwargs):
-        return throttle(delay_sec=self._config.throttling)(func)(*args, **kwargs)
+        return self._throttler.throttle(delay_sec=self._config.throttling)(func)(*args, **kwargs)
 
     def _retry(self, func, *args, **kwargs):
         # We +1 this because backoff retries UP to and not including max_retries
