@@ -17,8 +17,7 @@ class GoogleApi:
         self._refresh_token = None
 
     def list_albums(self):
-        resp = self._get(f'{BASE_URL}/v1/albums')
-        return resp.get('albums', [])
+        return self._walk(self._get, f'{BASE_URL}/v1/albums', {}, 'albums')
 
     def create_album(self, title):
         data = {'album': {'title': title}}
@@ -26,20 +25,10 @@ class GoogleApi:
 
     def get_media_in_folder(self, album_id):
         data = {
-            'pageSize': PAGE_SIZE,
-            'albumId': album_id
+            'albumId': album_id,
+            'pageSize': PAGE_SIZE
         }
-        while True:
-            walker = self._post(f'{BASE_URL}/v1/mediaItems:search', data)
-            data['pageToken'] = walker['nextPageToken'] if 'nextPageToken' in walker else None
-            if 'mediaItems'not in walker:
-                break
-
-            for media_item in walker['mediaItems']:
-                yield media_item
-
-            if not data['pageToken']:
-                break
+        return self._walk(self._post, f'{BASE_URL}/v1/mediaItems:search', data, 'mediaItems')
 
     def download(self, url, dest):
         self._download(url, dest)
@@ -59,6 +48,20 @@ class GoogleApi:
         if folder_id:
             data['albumId'] = folder_id
         self._post(f'{BASE_URL}/v1/mediaItems:batchCreate', data=data)
+
+    @staticmethod
+    def _walk(func, url, data, prop):
+        while True:
+            resp = func(url, data)
+            data['pageToken'] = resp['nextPageToken'] if 'nextPageToken' in resp else None
+            if prop not in resp:
+                break
+
+            for item in resp[prop]:
+                yield item
+
+            if not data['pageToken']:
+                break
 
     def _get(self, url, params=None):
         resp = self._resiliently.call(self._authenticated_call, requests.get, url, params=params)

@@ -1,3 +1,4 @@
+from html import unescape
 from .file_info import FileInfo
 from .folder_info import FolderInfo
 from .root_folder_info import RootFolderInfo
@@ -74,7 +75,7 @@ class GoogleStorage(RemoteStorage):
             folder = self._get_folder_by_name(folder_name)
             if not folder:
                 album = self._api.create_album(folder_name)
-                folder = FolderInfo(id=album['id'], name=album['title'])
+                folder = FolderInfo(id=album['id'], name=unescape(album['title']))
                 self._folders.append(folder)
         self._api.upload(src, file_name, folder.id)
 
@@ -84,7 +85,7 @@ class GoogleStorage(RemoteStorage):
 
     def _get_file_info(self, photo):
         name = photo['filename'] if photo['filename'] else photo['id']
-        return FileInfo(id=photo['id'], name=name, url=photo['baseUrl'] + '=d')
+        return FileInfo(id=photo['id'], name=unescape(name), url=photo['baseUrl'] + '=d')
 
     def _list_all_folders_with_cache(self):
         """
@@ -94,5 +95,5 @@ class GoogleStorage(RemoteStorage):
         """
         if not self._folders:
             albums = self._api.list_albums()
-            self._folders = [FolderInfo(id=album['id'], name=album['title']) for album in albums]
+            self._folders = [FolderInfo(id=album['id'], name=unescape(album['title'])) for album in albums]
         return self._folders
