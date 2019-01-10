@@ -17,7 +17,8 @@ logger = logging.getLogger(__name__)
 
 def _get_storage(config, path):
     if path.lower() == Config.PATH_GOOGLE:
-        api = GoogleApi(config)
+        resiliently = Resiliently(config)
+        api = GoogleApi(config, resiliently)
         return GoogleStorage(config, api)
     if path.lower() == Config.PATH_FLICKR:
         resiliently = Resiliently(config)

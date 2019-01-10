@@ -10,8 +10,9 @@ logger = logging.getLogger(__name__)
 
 class GoogleApi:
 
-    def __init__(self, config):
+    def __init__(self, config, resiliently):
         self._config = config
+        self._resiliently = resiliently
         self._access_token = None
         self._refresh_token = None
 
@@ -60,17 +61,17 @@ class GoogleApi:
         self._post(f'{BASE_URL}/v1/mediaItems:batchCreate', data=data)
 
     def _get(self, url, params=None):
-        resp = self._authenticated_call(requests.get, url, params=params)
+        resp = self._resiliently.call(self._authenticated_call, requests.get, url, params=params)
         resp.raise_for_status()
         return resp.json()
 
     def _post(self, url, data):
-        resp = self._authenticated_call(requests.post, url, json=data)
+        resp = self._resiliently.call(self._authenticated_call, requests.post, url, json=data)
         resp.raise_for_status()
         return resp.json()
 
     def _download(self, url, dest):
-        resp = self._authenticated_call(requests.get, url, stream=True)
+        resp = self._resiliently.call(self._authenticated_call, requests.get, url, stream=True)
         resp.raise_for_status()
         with open(dest, 'wb') as f:
             for chunk in resp:
@@ -83,7 +84,7 @@ class GoogleApi:
             'X-Goog-Upload-File-Name': file_name,
             'X-Goog-Upload-Protocol': 'raw'
         }
-        resp = self._authenticated_call(requests.post, url, data=data, headers=headers)
+        resp = self._resiliently.call(self._authenticated_call, requests.post, url, data=data, headers=headers)
         upload_token = resp.text
         return upload_token
 
@@ -108,7 +109,7 @@ class GoogleApi:
             'refresh_token': self._refresh_token,
             'grant_type': 'refresh_token'
         }
-        resp = requests.post('https://www.googleapis.com/oauth2/v4/token', data=data)
+        resp = self._resiliently.call(requests.post, 'https://www.googleapis.com/oauth2/v4/token', data=data)
         result = resp.json()
         self._access_token = result['access_token']
         self._config.save_tokens(self._config.PATH_GOOGLE, {
@@ -156,6 +157,6 @@ class GoogleApi:
             'grant_type': 'authorization_code',
             'code_verifier': challenge
         }
-        resp = requests.post('https://www.googleapis.com/oauth2/v4/token', data=data)
+        resp = self._resiliently.call(requests.post, 'https://www.googleapis.com/oauth2/v4/token', data=data)
         resp.raise_for_status()
         return resp.json()
