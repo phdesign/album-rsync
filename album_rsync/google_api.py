@@ -2,6 +2,7 @@ import webbrowser
 import urllib.parse
 import uuid
 import logging
+from functools import partial
 import requests
 
 PAGE_SIZE = 100
@@ -13,28 +14,32 @@ class GoogleApi:
     def __init__(self, config, resiliently):
         self._config = config
         self._resiliently = resiliently
+        self._resilient_get = partial(self._resiliently.call, self._get)
+        self._resilient_post = partial(self._resiliently.call, self._post)
+        self._resilient_download = partial(self._resiliently.call, self._download)
+        self._resilient_upload = partial(self._resiliently.call, self._upload)
         self._access_token = None
         self._refresh_token = None
 
     def list_albums(self):
-        return self._walk(self._get, f'{BASE_URL}/v1/albums', {}, 'albums')
+        return self._walk(self._resilient_get, f'{BASE_URL}/v1/albums', {}, 'albums')
 
     def create_album(self, title):
         data = {'album': {'title': title}}
-        return self._post(f'{BASE_URL}/v1/albums', data=data)
+        return self._resilient_post(f'{BASE_URL}/v1/albums', data=data)
 
     def get_media_in_folder(self, album_id):
         data = {
             'albumId': album_id,
             'pageSize': PAGE_SIZE
         }
-        return self._walk(self._post, f'{BASE_URL}/v1/mediaItems:search', data, 'mediaItems')
+        return self._walk(self._resilient_post, f'{BASE_URL}/v1/mediaItems:search', data, 'mediaItems')
 
     def download(self, url, dest):
-        self._download(url, dest)
+        self._resilient_download(url, dest)
 
     def upload(self, src_path, file_name, folder_id):
-        upload_token = self._upload(f'{BASE_URL}/v1/uploads', src_path, file_name)
+        upload_token = self._resilient_upload(f'{BASE_URL}/v1/uploads', src_path, file_name)
         data = {
             'newMediaItems': [
                 {
@@ -47,7 +52,7 @@ class GoogleApi:
         }
         if folder_id:
             data['albumId'] = folder_id
-        self._post(f'{BASE_URL}/v1/mediaItems:batchCreate', data=data)
+        self._resilient_post(f'{BASE_URL}/v1/mediaItems:batchCreate', data=data)
 
     @staticmethod
     def _walk(func, url, data, prop):
@@ -64,17 +69,17 @@ class GoogleApi:
                 break
 
     def _get(self, url, params=None):
-        resp = self._resiliently.call(self._authenticated_call, requests.get, url, params=params)
+        resp = self._authenticated_call(requests.get, url, params=params)
         resp.raise_for_status()
         return resp.json()
 
     def _post(self, url, data):
-        resp = self._resiliently.call(self._authenticated_call, requests.post, url, json=data)
+        resp = self._authenticated_call(requests.post, url, json=data)
         resp.raise_for_status()
         return resp.json()
 
     def _download(self, url, dest):
-        resp = self._resiliently.call(self._authenticated_call, requests.get, url, stream=True)
+        resp = self._authenticated_call(requests.get, url, stream=True)
         resp.raise_for_status()
         with open(dest, 'wb') as f:
             for chunk in resp:
@@ -87,7 +92,8 @@ class GoogleApi:
             'X-Goog-Upload-File-Name': file_name,
             'X-Goog-Upload-Protocol': 'raw'
         }
-        resp = self._resiliently.call(self._authenticated_call, requests.post, url, data=data, headers=headers)
+        resp = self._authenticated_call(requests.post, url, data=data, headers=headers)
+        resp.raise_for_status()
         upload_token = resp.text
         return upload_token
 
