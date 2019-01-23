@@ -11,7 +11,7 @@ from album_rsync.root_folder_info import RootFolderInfo
 class TestCsvWalker:
 
     def setup_method(self):
-        self.print_patch = patch('album_rsync.csv_walker.print', create=True)
+        self.print_patch = patch('album_rsync.csv_walker.sys.stdout.write', create=True)
         self.mock_print = self.print_patch.start()
         self.logger_patch = patch('album_rsync.csv_walker.logger', create=True)
         self.mock_logger = self.logger_patch.start()
@@ -31,6 +31,7 @@ class TestCsvWalker:
         self.file_one = FileInfo(id=1, name='A File')
         self.file_two = FileInfo(id=2, name='B File')
         self.file_three = FileInfo(id=3, name='C File', checksum='abc123')
+        self.file_four = FileInfo(id=4, name='D File, with comma')
 
     def teardown_method(self):
         self.print_patch.stop()
@@ -42,7 +43,7 @@ class TestCsvWalker:
         walker.walk()
 
         self.mock_print.assert_has_calls_exactly([
-            call("Folder, Filename, Checksum")
+            call("Folder,Filename,Checksum\r\n")
         ])
         self.mock_logger.info.assert_called_once_with("\ndone in 0 sec")
 
@@ -55,7 +56,7 @@ class TestCsvWalker:
         walker.walk()
 
         self.mock_print.assert_has_calls_exactly([
-            call("Folder, Filename, Checksum")
+            call("Folder,Filename,Checksum\r\n")
         ])
 
     def test_should_print_root_files_given_root_files_enabled(self):
@@ -67,9 +68,9 @@ class TestCsvWalker:
         walker.walk()
 
         self.mock_print.assert_has_calls_exactly([
-            call("Folder, Filename, Checksum"),
-            call(", A File, None"),
-            call(", B File, None")
+            call("Folder,Filename,Checksum\r\n"),
+            call(",A File,\r\n"),
+            call(",B File,\r\n")
         ])
 
     def test_should_not_print_root_files_given_root_files_disabled(self):
@@ -81,7 +82,7 @@ class TestCsvWalker:
         walker.walk()
 
         self.mock_print.assert_has_calls_exactly([
-            call("Folder, Filename, Checksum")
+            call("Folder,Filename,Checksum\r\n")
         ])
 
     def test_should_print_folder_files(self):
@@ -92,9 +93,9 @@ class TestCsvWalker:
         walker.walk()
 
         self.mock_print.assert_has_calls_exactly([
-            call("Folder, Filename, Checksum"),
-            call("A Folder, A File, None"),
-            call("A Folder, B File, None")
+            call("Folder,Filename,Checksum\r\n"),
+            call("A Folder,A File,\r\n"),
+            call("A Folder,B File,\r\n")
         ])
 
     def test_should_print_all_folders(self):
@@ -106,9 +107,9 @@ class TestCsvWalker:
         walker.walk()
 
         self.mock_print.assert_has_calls_exactly([
-            call("Folder, Filename, Checksum"),
-            call("A Folder, A File, None"),
-            call("B Folder, B File, None")
+            call("Folder,Filename,Checksum\r\n"),
+            call("A Folder,A File,\r\n"),
+            call("B Folder,B File,\r\n")
         ])
 
     def test_should_print_checksum_given_file_has_checksum(self):
@@ -119,8 +120,8 @@ class TestCsvWalker:
         walker.walk()
 
         self.mock_print.assert_has_calls_exactly([
-            call("Folder, Filename, Checksum"),
-            call("A Folder, C File, abc123")
+            call("Folder,Filename,Checksum\r\n"),
+            call("A Folder,C File,abc123\r\n")
         ])
 
     def test_should_sort_folders_and_files_given_sort_enabled(self):
@@ -133,10 +134,10 @@ class TestCsvWalker:
         walker.walk()
 
         self.mock_print.assert_has_calls_exactly([
-            call("Folder, Filename, Checksum"),
-            call("A Folder, A File, None"),
-            call("B Folder, B File, None"),
-            call("B Folder, C File, abc123")
+            call("Folder,Filename,Checksum\r\n"),
+            call("A Folder,A File,\r\n"),
+            call("B Folder,B File,\r\n"),
+            call("B Folder,C File,abc123\r\n")
         ])
 
     def test_should_not_sort_folders_and_files_given_sort_disabled(self):
@@ -149,10 +150,10 @@ class TestCsvWalker:
         walker.walk()
 
         self.mock_print.assert_has_calls_exactly([
-            call("Folder, Filename, Checksum"),
-            call("B Folder, C File, abc123"),
-            call("B Folder, B File, None"),
-            call("A Folder, A File, None")
+            call("Folder,Filename,Checksum\r\n"),
+            call("B Folder,C File,abc123\r\n"),
+            call("B Folder,B File,\r\n"),
+            call("A Folder,A File,\r\n")
         ])
 
     def test_should_print_only_folders_given_list_folders_enabled(self):
@@ -165,9 +166,9 @@ class TestCsvWalker:
         walker.walk()
 
         self.mock_print.assert_has_calls_exactly([
-            call("Folder"),
-            call("B Folder"),
-            call("A Folder")
+            call("Folder\r\n"),
+            call("B Folder\r\n"),
+            call("A Folder\r\n")
         ])
 
     def test_should_print_sorted_folders_given_list_folders_and_sort_enabled(self):
@@ -181,7 +182,20 @@ class TestCsvWalker:
         walker.walk()
 
         self.mock_print.assert_has_calls_exactly([
-            call("Folder"),
-            call("A Folder"),
-            call("B Folder")
+            call("Folder\r\n"),
+            call("A Folder\r\n"),
+            call("B Folder\r\n")
+        ])
+
+    def test_should_escape_commas(self):
+        walker = CsvWalker(self.config, self.storage)
+        tests.helpers.setup_storage(self.storage, [
+            {'folder': self.folder_one, 'files': [self.file_one, self.file_four]}
+        ])
+        walker.walk()
+
+        self.mock_print.assert_has_calls_exactly([
+            call("Folder,Filename,Checksum\r\n"),
+            call("A Folder,A File,\r\n"),
+            call("A Folder,\"D File, with comma\",\r\n")
         ])
