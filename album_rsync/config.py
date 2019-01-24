@@ -2,7 +2,7 @@ import os, sys
 import configparser
 import argparse
 import logging
-from distutils.util import strtobool
+from distutils.util import strtobool    #pylint: disable=no-name-in-module
 from ._version import __version__
 
 __packagename__ = 'album-rsync'
