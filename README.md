@@ -343,6 +343,7 @@ album-rsync uses the keyword `flickr` as a src or dest to denote pulling the lis
 ```
 $ album-rsync ./flickr --list-only
 ```
+
 #### If I add tags, they get changed by flickr, e.g. 'extn=mov becomes extnmov'.
 Internally flickr removes all whitespace and special characters, so 'extn mov' and 'extn=mov' match 'extnmov'. You can 
 edit a tag using this URL:
@@ -350,6 +351,14 @@ https://www.flickr.com/photos/{username}/tags/{tagname}/edit/
 or go here to manage all tags:
 https://www.flickr.com/photos/{username}/tags
 And in future put double quotes around your tag to retain special characters
+
+#### I get an error 'UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-3: character maps to \<undefined\>'
+
+This error occurs on Windows when you redirect stdout. To fix this, set PYTHONIOENCODING=utf-8. e.g.
+
+```
+$ PYTHONIOENCODING=utf-8 album-rsync ./flickr --list-only
+```
 
 ## Release notes
 
