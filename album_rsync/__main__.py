@@ -1,5 +1,3 @@
-import os
-import sys
 from urllib.error import URLError
 import logging
 
@@ -35,12 +33,7 @@ def _get_walker(config, storage, list_format):
         return CsvWalker(config, storage)
     raise ValueError('Unrecognised value for list-format: {}'.format(list_format))
 
-def _patch_win_unicode():
-    if os.name == 'nt':
-        sys.stdout.reconfigure(encoding='utf-8')
-
 def main():
-    _patch_win_unicode()
     try:
         config = Config()
         config.read()
