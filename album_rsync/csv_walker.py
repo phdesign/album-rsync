@@ -14,7 +14,7 @@ class CsvWalker(Walker):
     def __init__(self, config, storage):
         self._config = config
         self._storage = storage
-        self._writer = csv.writer(sys.stdout)
+        self._writer = csv.writer(sys.stdout, lineterminator='\n')
 
     def walk(self):
         start = time.time()
