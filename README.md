@@ -1,4 +1,4 @@
-# album-rsync
+# album-rsync [![Build Status](https://travis-ci.org/phdesign/album-rsync.svg?branch=master)](https://travis-ci.org/phdesign/album-rsync)
 
 A python script to manage synchronising a local directory of photos with a remote service based on an rsync interaction pattern.
 
