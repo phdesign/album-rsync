@@ -45,6 +45,10 @@ class LocalStorage(Storage):
             if self._should_include(name, self._config.include, self._config.exclude) and os.path.isfile(path)
         ]
 
+    def delete_file(self, fileinfo, folder_name):
+        file_path = os.path.join(self.path, folder_name, fileinfo.name)
+        os.remove(file_path)
+
     def copy_file(self, fileinfo, folder_name, dest_storage):
         src = fileinfo.full_path
         if isinstance(dest_storage, RemoteStorage):

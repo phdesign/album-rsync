@@ -3,6 +3,7 @@ import time
 import logging
 from urllib.error import URLError
 from .root_folder_info import RootFolderInfo
+from .utils import choice
 
 logger = logging.getLogger(__name__)
 
@@ -14,10 +15,14 @@ class Sync:
         self._dest = dest
         self._copy_count = 0
         self._skip_count = 0
+        self._delete_count = 0
 
     def run(self):
         if self._config.dry_run:
             logger.info("dry run enabled, no files will be copied")
+        elif self._config.delete:
+            if not choice("really delete any additional files?", "no"):
+                exit()
         logger.info("building folder list...")
         start = time.time()
 
@@ -34,7 +39,7 @@ class Sync:
         if self._config.root_files:
             self._merge_folders(RootFolderInfo(), RootFolderInfo())
 
-        self._print_summary(time.time() - start, self._copy_count, self._skip_count)
+        self._print_summary(time.time() - start, self._copy_count, self._skip_count, self._delete_count)
 
     def _copy_folder(self, folder):
         src_files = self._src.list_files(folder)
@@ -45,14 +50,17 @@ class Sync:
 
     def _merge_folders(self, src_folder, dest_folder):
         src_files = self._src.list_files(src_folder)
-        dest_files = [file.name.lower() for file in self._dest.list_files(dest_folder)]
+        dest_files = self._dest.list_files(dest_folder)
+        dest_filenames = [f.name.lower() for f in dest_files]
+
+        # Copy new files
         for src_file in src_files:
-            path = os.path.join(src_folder.name, src_file.name)
             lower_filename = src_file.name.lower()
-            file_exists = lower_filename in dest_files
+            file_exists = lower_filename in dest_filenames
             # Fix for flickr converting .jpeg to .jpg.
             if lower_filename.endswith(".jpeg"):
-                file_exists = file_exists or "{}.jpg".format(lower_filename[:-5]) in dest_files
+                file_exists = file_exists or "{}.jpg".format(lower_filename[:-5]) in dest_filenames
+            path = os.path.join(src_folder.name, src_file.name)
             if not file_exists:
                 self._copy_count += 1
                 self._copy_file(src_folder, src_file, path)
@@ -60,16 +68,28 @@ class Sync:
                 self._skip_count += 1
                 logger.debug("{}...skipped, file exists".format(path))
 
-    def _copy_file(self, folder, file, path):
+        # Remove additional files
+        if self._config.delete:
+            src_filenames = [f.name.lower() for f in src_files]
+            for f in filter(lambda f: f.name.lower() not in src_filenames, dest_files):
+                path = os.path.join(dest_folder.name, f.name)
+                print(f"deleting {path}")
+                if not self._config.dry_run:
+                    self._dest.delete_file(f, dest_folder.name)
+                self._delete_count += 1
+                logger.debug("{}...deleted".format(path))
+
+    def _copy_file(self, folder, file_, path):
         print(path)
         if not self._config.dry_run:
             try:
-                self._src.copy_file(file, folder and folder.name, self._dest)
+                self._src.copy_file(file_, folder and folder.name, self._dest)
             except (URLError, FileNotFoundError) as err:
                 logger.error("Error connecting to server, skipping. {!r}".format(err))
 
         logger.debug("{}...copied".format(path))
 
-    def _print_summary(self, elapsed, files_copied, files_skipped):
+    def _print_summary(self, elapsed, files_copied, files_skipped, files_deleted):
         skipped_msg = f", skipped {files_skipped} files(s) that already exist" if files_skipped > 0 else ""
-        logger.info(f"\ntransferred {files_copied} file(s){skipped_msg} in {round(elapsed, 2)} sec")
+        deleted_msg = f", deleted {files_deleted} additional files(s)" if files_deleted > 0 else ""
+        logger.info(f"\ntransferred {files_copied} file(s){skipped_msg}{deleted_msg} in {round(elapsed, 2)} sec")

@@ -133,10 +133,6 @@ $ album-rsync ~/Pictures/from ~/Pictures/to
 
 Files are matched by folder names and file names. E.g. if you have a Flickr photoset called `2017-04-16 Easter Camping` and a file called `IMG_2517.jpg`, and you are trying to copy from a folder with `2017-04-16 Easter Camping\IMG_2517.jpg` it will assume this file is the same and will not try to copy it.
 
-### Will never delete!
-
-`album-rsync` will never delete any files, either from Flickr or your local system, it is append only. It will not overwrite any files either, if a file with the same name exists in the same photoset / folder, it will be skipped.
-
 ## Filtering
 
 Filtering is done using regular expressions. The following four options control filtering the files:
@@ -382,7 +378,7 @@ $ PYTHONIOENCODING=utf-8 album-rsync ./flickr --list-only
 * Optimise - why does sort files seem to run faster?!
 * Fix duplicate albums issue
 * Why does it make 3 api calls for every photo in --list-only --list-sort mode?
-* --mirror. Yep, delete photos from target, but don't make it easy
 * --init to setup a new .ini file and walk through auth process
 * Rename FileInfo > Media, FolderInfo > Album
 * Add throttling and delay to Google
+* Document delete functionality

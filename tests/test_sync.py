@@ -14,7 +14,9 @@ class TestSyncBase:
         self.print_patch = patch('album_rsync.sync.print')
         self.mock_print = self.print_patch.start()
         self.logger_patch = patch('album_rsync.csv_walker.logger', create=True)
-        self.mock_logger = self.logger_patch.start()
+        self.logger_patch.start()
+        self.choice_patch = patch('album_rsync.sync.choice')
+        self.choice_patch.start().return_value = True
 
         self.config = MagicMock()
         self.config.dry_run = False
@@ -35,6 +37,7 @@ class TestSyncBase:
     def teardown_method(self):
         self.print_patch.stop()
         self.logger_patch.stop()
+        self.choice_patch.stop()
 
 class TestSync(TestSyncBase):
 
@@ -120,7 +123,7 @@ class TestSyncCopy(TestSyncBase):
             call(self.file_two, self.folder_two.name, self.dest_storage)
         ], any_order=True)
 
-class TestMergeSync(TestSyncBase):
+class TestSyncMerge(TestSyncBase):
 
     def test_should_copy_missing_files_in_existing_folder(self):
         setup_storage(self.src_storage, [{
@@ -177,7 +180,7 @@ class TestMergeSync(TestSyncBase):
         }])
         setup_storage(self.dest_storage, [{
             'folder': self.folder_one,
-            'files': [self.file_one, self.file_two]
+            'files': [self.file_one]
         }])
 
         self.sync.run()
@@ -198,3 +201,40 @@ class TestMergeSync(TestSyncBase):
         self.mock.assert_has_calls_exactly([
             call(self.file_one, '', self.dest_storage),
         ], any_order=True)
+
+class TestSyncDelete(TestSyncBase):
+
+    def setup_method(self):
+        super().setup_method()
+        self.mock_delete = MagicMock()
+        self.dest_storage.delete_file = self.mock_delete
+
+    def test_should_delete_additional_files_in_destination(self):
+        self.config.delete = True
+        setup_storage(self.src_storage, [{
+            'folder': self.folder_one,
+            'files': [self.file_one]
+        }])
+        setup_storage(self.dest_storage, [{
+            'folder': self.folder_one,
+            'files': [self.file_one, self.file_two]
+        }])
+
+        self.sync.run()
+
+        self.mock_delete.assert_called_once_with(self.file_two, self.folder_one.name)
+
+    def test_should_not_delete_additional_files_given_delete_flag_false(self):
+        self.config.delete = False
+        setup_storage(self.src_storage, [{
+            'folder': self.folder_one,
+            'files': [self.file_one]
+        }])
+        setup_storage(self.dest_storage, [{
+            'folder': self.folder_one,
+            'files': [self.file_one, self.file_two]
+        }])
+
+        self.sync.run()
+
+        self.mock_delete.assert_not_called()

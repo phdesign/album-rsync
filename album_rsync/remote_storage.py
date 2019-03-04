@@ -13,6 +13,10 @@ class RemoteStorage(Storage):
     def upload(self, src, folder_name, file_name, checksum):
         pass
 
+    @abstractmethod
+    def delete_file(self, fileinfo, folder_name):
+        pass
+
     def copy_file(self, fileinfo, folder_name, dest_storage):
         if isinstance(dest_storage, RemoteStorage):
             temp_file = NamedTemporaryFile()

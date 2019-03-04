@@ -142,6 +142,9 @@ class FlickrStorage(RemoteStorage):
             else:
                 self._resiliently.call(photoset.addPhoto, photo=photo)
 
+    def delete_file(self, fileinfo, folder_name):
+        raise NotImplementedError()
+
     def _get_folder_by_name(self, name):
         return next((x for x in self._photosets.values() if x.title.lower() == name.lower()), None)
 
