@@ -1,13 +1,33 @@
+VENV_NAME       ?= .venv
+ifdef OS
+	PYTHON          ?= python
+	VENV_ACTIVATE   ?= $(VENV_NAME)/Scripts/activate
+else
+	PYTHON          ?= python3
+	VENV_ACTIVATE   ?= $(VENV_NAME)/bin/activate
+endif
+
 init:
 	pip install -r requirements.txt
 
+venv:
+	test -d $(VENV_NAME) || $(PYTHON) -m venv $(VENV_NAME)
+	source $(VENV_ACTIVATE); \
+	pip install -r requirements.txt; \
+	pip install -r tests/requirements.txt
+
 lint:
-	pylint {**,.}/*.py
+	@source $(VENV_ACTIVATE); \
+	pylint -f colorized {**,.}/*.py
 
 test:
+	@source $(VENV_ACTIVATE); \
 	python setup.py test
 
-publish:
-	python setup.py sdist upload
+clean:
+	rm -rf .venv
+	rm -rf .pytest_cache
+	find . -iname "*.pyc" -delete
+	find . -type d -name "__pycache__" -delete
 
-.PHONY: init lint test publish
+.PHONY: init venv lint test clean

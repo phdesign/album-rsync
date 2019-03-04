@@ -13,6 +13,8 @@ class TestSyncBase:
     def setup_method(self):
         self.print_patch = patch('album_rsync.sync.print')
         self.mock_print = self.print_patch.start()
+        self.logger_patch = patch('album_rsync.csv_walker.logger', create=True)
+        self.mock_logger = self.logger_patch.start()
 
         self.config = MagicMock()
         self.config.dry_run = False
@@ -32,6 +34,7 @@ class TestSyncBase:
 
     def teardown_method(self):
         self.print_patch.stop()
+        self.logger_patch.stop()
 
 class TestSync(TestSyncBase):
 
@@ -99,6 +102,23 @@ class TestSyncCopy(TestSyncBase):
         self.sync.run()
 
         self.mock.assert_not_called()
+
+    def test_should_skip_copying_when_error_occurs(self):
+        self.mock.side_effect = FileNotFoundError()
+        setup_storage(self.src_storage, [
+            {'folder': self.folder_one, 'files': [self.file_one]},
+            {'folder': self.folder_two, 'files': [self.file_one, self.file_two]}
+        ])
+        setup_storage(self.dest_storage, [
+            {'folder': self.folder_two, 'files': [self.file_one]}
+        ])
+
+        self.sync.run()
+
+        self.mock.assert_has_calls_exactly([
+            call(self.file_one, self.folder_one.name, self.dest_storage),
+            call(self.file_two, self.folder_two.name, self.dest_storage)
+        ], any_order=True)
 
 class TestMergeSync(TestSyncBase):
 

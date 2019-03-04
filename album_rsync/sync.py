@@ -1,6 +1,7 @@
 import os
 import time
 import logging
+from urllib.error import URLError
 from .root_folder_info import RootFolderInfo
 
 logger = logging.getLogger(__name__)
@@ -62,7 +63,11 @@ class Sync:
     def _copy_file(self, folder, file, path):
         print(path)
         if not self._config.dry_run:
-            self._src.copy_file(file, folder and folder.name, self._dest)
+            try:
+                self._src.copy_file(file, folder and folder.name, self._dest)
+            except (URLError, FileNotFoundError) as err:
+                logger.error("Error connecting to server, skipping. {!r}".format(err))
+
         logger.debug("{}...copied".format(path))
 
     def _print_summary(self, elapsed, files_copied, files_skipped):
