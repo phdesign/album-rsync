@@ -30,6 +30,12 @@ class FakeStorage(Storage):
     def copy_file(self, fileinfo, folder_name, dest_storage):
         self._intense_calculation(None)
 
+    def delete_file(self, fileinfo, folder_name):
+        raise NotImplementedError()
+
+    def delete_folder(self, folder):
+        raise NotImplementedError()
+
     def _get_char(self, num, max_num):
         return str(chr((64 + max_num) - num))
 

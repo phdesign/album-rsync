@@ -45,8 +45,8 @@ setup(
     dependency_links=[
         'git+git://github.com/alexis-mignon/python-flickr-api@65effbe#egg=flickr_api'
     ],
-    setup_requires=['pytest-runner', 'pytest-pylint'],
-    tests_require=['pytest', 'pylint'],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
     zip_safe=True,
     entry_points={
         'console_scripts': ['album-rsync=album_rsync:main'],

@@ -16,6 +16,14 @@ class Storage:
     def copy_file(self, fileinfo, folder_name, dest_storage):
         pass
 
+    @abstractmethod
+    def delete_file(self, fileinfo, folder_name):
+        pass
+
+    @abstractmethod
+    def delete_folder(self, folder):
+        pass
+
     def mkdirp(self, path):
         """
         Creates all missing folders in the path

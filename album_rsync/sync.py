@@ -26,15 +26,24 @@ class Sync:
         logger.info("building folder list...")
         start = time.time()
 
-        src_folders = self._src.list_folders()
-        dest_folders = {folder.name.lower(): folder for folder in self._dest.list_folders()}
+        src_folders = list(self._src.list_folders())
+        dest_folders = list(self._dest.list_folders())
+        dest_folder_lookup = {f.name.lower(): f for f in dest_folders}
         for src_folder in src_folders:
-            dest_folder = dest_folders.get(src_folder.name.lower())
+            dest_folder = dest_folder_lookup.get(src_folder.name.lower())
             print(src_folder.name + os.sep)
             if dest_folder:
                 self._merge_folders(src_folder, dest_folder)
             else:
                 self._copy_folder(src_folder)
+
+        # Remove extra folders
+        if self._config.delete:
+            src_folder_names = [f.name.lower() for f in src_folders]
+            extra_folders = [f for f in dest_folders if f.name.lower() not in src_folder_names]
+            for f in extra_folders:
+                self._delete_folder(f)
+
         # Merge root files if requested
         if self._config.root_files:
             self._merge_folders(RootFolderInfo(), RootFolderInfo())
@@ -49,8 +58,8 @@ class Sync:
             self._copy_file(folder, src_file, path)
 
     def _merge_folders(self, src_folder, dest_folder):
-        src_files = self._src.list_files(src_folder)
-        dest_files = self._dest.list_files(dest_folder)
+        src_files = list(self._src.list_files(src_folder))
+        dest_files = list(self._dest.list_files(dest_folder))
         dest_filenames = [f.name.lower() for f in dest_files]
 
         # Copy new files
@@ -68,16 +77,29 @@ class Sync:
                 self._skip_count += 1
                 logger.debug("{}...skipped, file exists".format(path))
 
-        # Remove additional files
-        if self._config.delete:
+        # Remove extra files
+        if self._config.delete and not dest_folder.is_root:
             src_filenames = [f.name.lower() for f in src_files]
-            for f in filter(lambda f: f.name.lower() not in src_filenames, dest_files):
-                path = os.path.join(dest_folder.name, f.name)
-                print(f"deleting {path}")
-                if not self._config.dry_run:
-                    self._dest.delete_file(f, dest_folder.name)
-                self._delete_count += 1
-                logger.debug("{}...deleted".format(path))
+            extra_files = [f for f in dest_files if f.name.lower() not in src_filenames]
+            # If deleting all files, remove folder as well
+            if not set(dest_files) - set(extra_files):
+                self._delete_folder(dest_folder)
+            else:
+                for f in extra_files:
+                    path = os.path.join(dest_folder.name, f.name)
+                    print(f"deleting {path}")
+                    if not self._config.dry_run:
+                        self._dest.delete_file(f, dest_folder.name)
+                    self._delete_count += 1
+                    logger.debug("{}...deleted".format(path))
+
+    def _delete_folder(self, folder):
+        print(f"deleting {folder.name + os.sep}")
+        if not self._config.dry_run:
+            self._delete_count += self._dest.delete_folder(folder)
+        else:
+            self._delete_count += len(self._dest.list_files(folder))
+        logger.debug("{}...deleted".format(folder.name + os.sep))
 
     def _copy_file(self, folder, file_, path):
         print(path)

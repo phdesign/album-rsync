@@ -34,6 +34,10 @@ class TestSyncBase:
         self.mock = MagicMock()
         self.src_storage.copy_file = self.mock
 
+        self.mock_delete_folder = MagicMock()
+        self.mock_delete_folder.return_value = 1
+        self.dest_storage.delete_folder = self.mock_delete_folder
+
     def teardown_method(self):
         self.print_patch.stop()
         self.logger_patch.stop()
@@ -206,35 +210,77 @@ class TestSyncDelete(TestSyncBase):
 
     def setup_method(self):
         super().setup_method()
-        self.mock_delete = MagicMock()
-        self.dest_storage.delete_file = self.mock_delete
+        self.mock_delete_file = MagicMock()
+        self.dest_storage.delete_file = self.mock_delete_file
 
     def test_should_delete_additional_files_in_destination(self):
         self.config.delete = True
-        setup_storage(self.src_storage, [{
-            'folder': self.folder_one,
-            'files': [self.file_one]
-        }])
-        setup_storage(self.dest_storage, [{
-            'folder': self.folder_one,
-            'files': [self.file_one, self.file_two]
-        }])
+        setup_storage(self.src_storage, [
+            {'folder': self.folder_one, 'files': [self.file_one]}
+        ])
+        setup_storage(self.dest_storage, [
+            {'folder': self.folder_one, 'files': [self.file_one, self.file_two]}
+        ])
 
         self.sync.run()
 
-        self.mock_delete.assert_called_once_with(self.file_two, self.folder_one.name)
+        self.mock_delete_file.assert_called_once_with(self.file_two, self.folder_one.name)
+        self.mock_delete_folder.assert_not_called()
 
     def test_should_not_delete_additional_files_given_delete_flag_false(self):
         self.config.delete = False
-        setup_storage(self.src_storage, [{
-            'folder': self.folder_one,
-            'files': [self.file_one]
-        }])
-        setup_storage(self.dest_storage, [{
-            'folder': self.folder_one,
-            'files': [self.file_one, self.file_two]
-        }])
+        setup_storage(self.src_storage, [
+            {'folder': self.folder_one, 'files': [self.file_one]}
+        ])
+        setup_storage(self.dest_storage, [
+            {'folder': self.folder_one, 'files': [self.file_one, self.file_two]}
+        ])
 
         self.sync.run()
 
-        self.mock_delete.assert_not_called()
+        self.mock_delete_file.assert_not_called()
+        self.mock_delete_folder.assert_not_called()
+
+    def test_should_delete_additional_folders_in_destination(self):
+        self.config.delete = True
+        setup_storage(self.src_storage, [
+            {'folder': self.folder_one, 'files': [self.file_one]}
+        ])
+        setup_storage(self.dest_storage, [
+            {'folder': self.folder_one, 'files': [self.file_one]},
+            {'folder': self.folder_two, 'files': [self.file_one, self.file_two]}
+        ])
+
+        self.sync.run()
+
+        self.mock_delete_file.assert_not_called()
+        self.mock_delete_folder.assert_called_once_with(self.folder_two)
+
+    def test_should_not_delete_additional_folders_given_delete_flag_false(self):
+        self.config.delete = False
+        setup_storage(self.src_storage, [
+            {'folder': self.folder_one, 'files': [self.file_one]}
+        ])
+        setup_storage(self.dest_storage, [
+            {'folder': self.folder_one, 'files': [self.file_one]},
+            {'folder': self.folder_two, 'files': [self.file_one, self.file_two]}
+        ])
+
+        self.sync.run()
+
+        self.mock_delete_file.assert_not_called()
+        self.mock_delete_folder.assert_not_called()
+
+    def test_should_delete_folder_in_destination_when_last_file_deleted(self):
+        self.config.delete = True
+        setup_storage(self.src_storage, [
+            {'folder': self.folder_one, 'files': []}
+        ])
+        setup_storage(self.dest_storage, [
+            {'folder': self.folder_one, 'files': [self.file_one, self.file_two]}
+        ])
+
+        self.sync.run()
+
+        self.mock_delete_file.assert_not_called()
+        self.mock_delete_folder.assert_called_once_with(self.folder_one)

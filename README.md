@@ -358,7 +358,13 @@ $ PYTHONIOENCODING=utf-8 album-rsync ./flickr --list-only
 
 ## Release notes
 
+### vNext
+
+* Continues to next file when an error occurs copying a file (after retry policies have been applied)
+* Support for deleting additional files in destination folder
+
 ### v1.0.5 (21 Mar 2018)
+
 * Support for videos
 * Add tag to maintain original extension 
 

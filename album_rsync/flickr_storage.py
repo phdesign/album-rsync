@@ -27,7 +27,7 @@ a value, i.e. 123456 [which one is this]
 """     #pylint: disable=pointless-string-statement
 CHECKSUM_PREFIX = 'checksum:md5'
 EXTENSION_PREFIX = 'flickrrsync:extn'
-OAUTH_PERMISSIONS = 'write'
+OAUTH_PERMISSIONS = 'delete'
 logger = logging.getLogger(__name__)
 
 class FlickrStorage(RemoteStorage):
@@ -143,6 +143,11 @@ class FlickrStorage(RemoteStorage):
                 self._resiliently.call(photoset.addPhoto, photo=photo)
 
     def delete_file(self, fileinfo, folder_name):
+        photo = self._photos[fileinfo.id]
+        self._resiliently.call(photo.delete)
+        del self._photos[fileinfo.id]
+
+    def delete_folder(self, folder):
         raise NotImplementedError()
 
     def _get_folder_by_name(self, name):

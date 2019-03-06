@@ -49,6 +49,9 @@ class LocalStorage(Storage):
         file_path = os.path.join(self.path, folder_name, fileinfo.name)
         os.remove(file_path)
 
+    def delete_folder(self, folder):
+        raise NotImplementedError()
+
     def copy_file(self, fileinfo, folder_name, dest_storage):
         src = fileinfo.full_path
         if isinstance(dest_storage, RemoteStorage):

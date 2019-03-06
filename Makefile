@@ -18,9 +18,9 @@ venv:
 
 lint:
 	@source $(VENV_ACTIVATE); \
-	pylint -f colorized {**,.}/*.py
+	pylint --exit-zero -f colorized {**,.}/*.py
 
-test:
+test: lint
 	@source $(VENV_ACTIVATE); \
 	python setup.py test
 
