@@ -388,3 +388,4 @@ $ PYTHONIOENCODING=utf-8 album-rsync ./flickr --list-only
 * Rename FileInfo > Media, FolderInfo > Album
 * Add throttling and delay to Google
 * Document delete functionality
+* Bug with root folders. try `album-rsync fake fake --delete --root-files` expected to delete B File

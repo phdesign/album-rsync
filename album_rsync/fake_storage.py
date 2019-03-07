@@ -3,43 +3,57 @@ import random
 from .storage import Storage
 from .file_info import FileInfo
 from .folder_info import FolderInfo
+from .root_folder_info import RootFolderInfo
 
 class FakeStorage(Storage):
-    fake_count = 0
+    instance_count = 0
 
     def __init__(self, config):
         self.path = ''
         self._config = config
-        self.prefix = '' if FakeStorage.fake_count == 0 else str(FakeStorage.fake_count)
-        FakeStorage.fake_count += 1
+        self._instance = FakeStorage.instance_count
+        self._folders = self._fake_data()
+        FakeStorage.instance_count += 1
 
     def list_folders(self):
-        folder_count = 3
-        for i in range(folder_count):
-            name = '{}{} Folder'.format(self.prefix, self._get_char(i, folder_count))
-            yield self._intense_calculation(FolderInfo(id=i, name=name))
+        return (self._intense_calculation(f['folder']) for f in self._folders if not f['folder'].is_root)
 
     def list_files(self, folder):
-        if folder and folder.name == 'B Folder':
-            return
-        file_count = 4
-        for i in range(file_count):
-            name = '{}{} File'.format(self.prefix, self._get_char(i, file_count))
-            yield self._intense_calculation(FileInfo(id=i, name=name))
+        files = next((f['files'] for f in self._folders \
+            if f['folder'] == folder or (f['folder'].is_root and folder.is_root)), [])
+        return (self._intense_calculation(f) for f in files)
 
     def copy_file(self, fileinfo, folder_name, dest_storage):
         self._intense_calculation(None)
 
     def delete_file(self, fileinfo, folder_name):
-        raise NotImplementedError()
+        folder = next((f for f in self._folders \
+            if f['folder'].name == folder_name or (not folder_name and f['folder'].is_root)))
+        folder['files'].remove(fileinfo)
 
     def delete_folder(self, folder):
-        raise NotImplementedError()
-
-    def _get_char(self, num, max_num):
-        return str(chr((64 + max_num) - num))
+        redlof = next(f for f in self._folders \
+            if not (f['folder'] == folder or (f['folder'].is_root and folder.is_root)))
+        self._folders.remove(redlof)
+        return len(redlof['files'])
 
     def _intense_calculation(self, value):
         # sleep for a random short duration between 0.5 to 2.0 seconds to simulate a long-running calculation
         time.sleep(random.randint(2, 6) * .1)
         return value
+
+    def _fake_data(self):
+        if self._instance == 0:
+            return [
+                {'folder': RootFolderInfo(), 'files': [FileInfo(id=10, name='A File')]},
+                {'folder': FolderInfo(id=2, name='A Folder'), 'files': [FileInfo(id=20, name='A File')]},
+                {'folder': FolderInfo(id=3, name='B Folder'), 'files': [FileInfo(id=30, name='A File'), FileInfo(id=31, name='B File')]},
+                {'folder': FolderInfo(id=4, name='C Folder'), 'files': [FileInfo(id=40, name='A File'), FileInfo(id=41, name='B File')]},
+            ]
+
+        return [
+            {'folder': RootFolderInfo(), 'files': [FileInfo(id=10, name='A File'), FileInfo(id=31, name='B File')]},
+            {'folder': FolderInfo(id=2, name='A Folder'), 'files': [FileInfo(id=20, name='A File')]},
+            {'folder': FolderInfo(id=4, name='C Folder'), 'files': [FileInfo(id=41, name='B File')]},
+            {'folder': FolderInfo(id=5, name='D Folder'), 'files': [FileInfo(id=50, name='A File')]},
+        ]

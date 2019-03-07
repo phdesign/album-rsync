@@ -43,7 +43,8 @@ class Sync:
             extra_folders = (folder for name_lower, folder in dest_folders.items() \
                 if name_lower not in src_folder_names)
             for folder in extra_folders:
-                self._delete_folder(folder)
+                if not folder.is_root:
+                    self._delete_folder(folder)
 
         # Merge root files if requested
         if self._config.root_files:
@@ -79,11 +80,11 @@ class Sync:
                 logger.debug("{}...skipped, file exists".format(path))
 
         # Remove extra files
-        if self._config.delete and not dest_folder.is_root:
+        if self._config.delete:
             src_filenames = [f.name.lower() for f in src_files_memo]
             extra_files = [f for f in dest_files if f.name.lower() not in src_filenames]
             # If deleting all files, remove folder as well
-            if not set(dest_files) - set(extra_files):
+            if not set(dest_files) - set(extra_files) and not dest_folder.is_root:
                 self._delete_folder(dest_folder)
             else:
                 for f in extra_files:
