@@ -1,6 +1,7 @@
 import os
 import time
 import logging
+from itertools import tee
 from urllib.error import URLError
 from .root_folder_info import RootFolderInfo
 from .utils import choice
@@ -26,11 +27,10 @@ class Sync:
         logger.info("building folder list...")
         start = time.time()
 
-        src_folders = list(self._src.list_folders())
-        dest_folders = list(self._dest.list_folders())
-        dest_folder_lookup = {f.name.lower(): f for f in dest_folders}
+        src_folders, src_folders_memo = tee(self._src.list_folders(), 2)
+        dest_folders = {f.name.lower(): f for f in self._dest.list_folders()}
         for src_folder in src_folders:
-            dest_folder = dest_folder_lookup.get(src_folder.name.lower())
+            dest_folder = dest_folders.get(src_folder.name.lower())
             print(src_folder.name + os.sep)
             if dest_folder:
                 self._merge_folders(src_folder, dest_folder)
@@ -39,10 +39,11 @@ class Sync:
 
         # Remove extra folders
         if self._config.delete:
-            src_folder_names = [f.name.lower() for f in src_folders]
-            extra_folders = [f for f in dest_folders if f.name.lower() not in src_folder_names]
-            for f in extra_folders:
-                self._delete_folder(f)
+            src_folder_names = [f.name.lower() for f in src_folders_memo]
+            extra_folders = (folder for name_lower, folder in dest_folders.items() \
+                if name_lower not in src_folder_names)
+            for folder in extra_folders:
+                self._delete_folder(folder)
 
         # Merge root files if requested
         if self._config.root_files:
@@ -58,7 +59,7 @@ class Sync:
             self._copy_file(folder, src_file, path)
 
     def _merge_folders(self, src_folder, dest_folder):
-        src_files = list(self._src.list_files(src_folder))
+        src_files, src_files_memo = tee(self._src.list_files(src_folder), 2)
         dest_files = list(self._dest.list_files(dest_folder))
         dest_filenames = [f.name.lower() for f in dest_files]
 
@@ -79,7 +80,7 @@ class Sync:
 
         # Remove extra files
         if self._config.delete and not dest_folder.is_root:
-            src_filenames = [f.name.lower() for f in src_files]
+            src_filenames = [f.name.lower() for f in src_files_memo]
             extra_files = [f for f in dest_files if f.name.lower() not in src_filenames]
             # If deleting all files, remove folder as well
             if not set(dest_files) - set(extra_files):
