@@ -34,14 +34,14 @@ class LocalStorage(Storage):
         ]
 
     def list_files(self, folder):
-        folder_abs = os.path.join(self.path, folder.name)
+        folder_path = os.path.join(self.path, folder.name)
         return [
             FileInfo(
                 id=i,
                 name=name,
                 full_path=path,
                 checksum=self.md5_checksum(path) if self._config.checksum else None)
-            for i, (name, path) in enumerate((x, os.path.join(folder_abs, x)) for x in os.listdir(folder_abs))
+            for i, (name, path) in enumerate((x, os.path.join(folder_path, x)) for x in os.listdir(folder_path))
             if self._should_include(name, self._config.include, self._config.exclude) and os.path.isfile(path)
         ]
 
@@ -50,17 +50,11 @@ class LocalStorage(Storage):
         os.remove(file_path)
 
     def delete_folder(self, folder):
-        deleted = 0
         folder_path = os.path.join(self.path, folder.name)
-        for f in self.list_files(folder):
-            os.remove(f.full_path)
-            deleted += 1
-        # Check whether there's any files left
-        if not os.listdir(folder_path):
-            os.rmdir(folder_path)
-        else:
-            logger.debug(f"folder {folder.name} not empty, can't be deleted")
-        return deleted
+        if os.listdir(folder_path):
+            return False
+        os.rmdir(folder_path)
+        return True
 
     def copy_file(self, fileinfo, folder_name, dest_storage):
         src = fileinfo.full_path

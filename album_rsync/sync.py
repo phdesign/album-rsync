@@ -44,7 +44,7 @@ class Sync:
                 if name_lower not in src_folder_names)
             for folder in extra_folders:
                 if not folder.is_root:
-                    self._delete_folder(folder)
+                    self._delete_folder_and_contents(folder)
 
         # Merge root files if requested
         if self._config.root_files:
@@ -82,26 +82,42 @@ class Sync:
         # Remove extra files
         if self._config.delete:
             src_filenames = [f.name.lower() for f in src_files_memo]
-            extra_files = [f for f in dest_files if f.name.lower() not in src_filenames]
+            extra_files = (f for f in dest_files if f.name.lower() not in src_filenames)
+
+            for f in extra_files:
+                self._delete_file(f, dest_folder)
+                dest_files.remove(f)
+
             # If deleting all files, remove folder as well
-            if not set(dest_files) - set(extra_files) and not dest_folder.is_root:
+            if not dest_files and not dest_folder.is_root:
                 self._delete_folder(dest_folder)
-            else:
-                for f in extra_files:
-                    path = os.path.join(dest_folder.name, f.name)
-                    print(f"deleting {path}")
-                    if not self._config.dry_run:
-                        self._dest.delete_file(f, dest_folder.name)
-                    self._delete_count += 1
-                    logger.debug("{}...deleted".format(path))
+
+    def _delete_folder_and_contents(self, folder):
+        for f in self._dest.list_files(folder):
+            self._delete_file(f, folder)
+            self._delete_count += 1
+
+        self._delete_folder(folder)
+
+    def _delete_file(self, fileinfo, folder):
+        path = os.path.join(folder.name, fileinfo.name)
+        print(f"deleting {path}")
+        if not self._config.dry_run:
+            self._dest.delete_file(fileinfo, folder.name)
+        self._delete_count += 1
+        logger.debug(f"{path}...deleted")
 
     def _delete_folder(self, folder):
-        print(f"deleting {folder.name + os.sep}")
+        path = folder.name + os.sep
+        print(f"deleting {path}")
         if not self._config.dry_run:
-            self._delete_count += self._dest.delete_folder(folder)
+            was_empty = self._dest.delete_folder(folder)
         else:
-            self._delete_count += len(list(self._dest.list_files(folder)))
-        logger.debug("{}...deleted".format(folder.name + os.sep))
+            was_empty = True
+        if was_empty:
+            logger.debug(f"{path}...deleted")
+        else:
+            logger.debug(f"{path}...not empty, can't be deleted")
 
     def _copy_file(self, folder, file_, path):
         print(path)

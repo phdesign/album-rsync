@@ -268,7 +268,10 @@ class TestSyncDelete(TestSyncBase):
 
         self.sync.run()
 
-        self.mock_delete_file.assert_not_called()
+        self.mock_delete_file.assert_has_calls_exactly([
+            call(self.file_one, self.folder_two.name),
+            call(self.file_two, self.folder_two.name)
+        ], any_order=True)
         self.mock_delete_folder.assert_called_once_with(self.folder_two)
 
     def test_should_not_delete_additional_folders_given_delete_flag_false(self):
@@ -297,5 +300,8 @@ class TestSyncDelete(TestSyncBase):
 
         self.sync.run()
 
-        self.mock_delete_file.assert_not_called()
+        self.mock_delete_file.assert_has_calls_exactly([
+            call(self.file_one, self.folder_one.name),
+            call(self.file_two, self.folder_one.name)
+        ], any_order=True)
         self.mock_delete_folder.assert_called_once_with(self.folder_one)

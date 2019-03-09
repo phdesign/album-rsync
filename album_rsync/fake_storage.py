@@ -32,10 +32,12 @@ class FakeStorage(Storage):
         folder['files'].remove(fileinfo)
 
     def delete_folder(self, folder):
-        redlof = next(f for f in self._folders \
+        to_delete = next(f for f in self._folders \
             if f['folder'] == folder or (f['folder'].is_root and folder.is_root))
-        self._folders.remove(redlof)
-        return len(redlof['files'])
+        if to_delete['files']:
+            return False
+        self._folders.remove(to_delete)
+        return True
 
     def _intense_calculation(self, value):
         # sleep for a random short duration between 0.5 to 2.0 seconds to simulate a long-running calculation
