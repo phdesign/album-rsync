@@ -148,7 +148,7 @@ class FlickrStorage(RemoteStorage):
         del self._photos[fileinfo.id]
 
     def delete_folder(self, folder):
-        photoset = self._photosets[folder.id],
+        photoset = self._photosets[folder.id]
         self._resiliently.call(photoset.delete)
         del self._photosets[folder.id]
 

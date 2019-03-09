@@ -86,28 +86,11 @@ class Sync:
 
             for f in extra_files:
                 self._delete_file(f, dest_folder)
-                dest_files.remove(f)
-
-            # If deleting all files, remove folder as well
-            if not dest_files and not dest_folder.is_root:
-                self._delete_folder(dest_folder)
 
     def _delete_folder_and_contents(self, folder):
         for f in self._dest.list_files(folder):
             self._delete_file(f, folder)
-            self._delete_count += 1
 
-        self._delete_folder(folder)
-
-    def _delete_file(self, fileinfo, folder):
-        path = os.path.join(folder.name, fileinfo.name)
-        print(f"deleting {path}")
-        if not self._config.dry_run:
-            self._dest.delete_file(fileinfo, folder.name)
-        self._delete_count += 1
-        logger.debug(f"{path}...deleted")
-
-    def _delete_folder(self, folder):
         path = folder.name + os.sep
         print(f"deleting {path}")
         if not self._config.dry_run:
@@ -118,6 +101,14 @@ class Sync:
             logger.debug(f"{path}...deleted")
         else:
             logger.debug(f"{path}...not empty, can't be deleted")
+
+    def _delete_file(self, fileinfo, folder):
+        path = os.path.join(folder.name, fileinfo.name)
+        print(f"deleting {path}")
+        if not self._config.dry_run:
+            self._dest.delete_file(fileinfo, folder.name)
+        self._delete_count += 1
+        logger.debug(f"{path}...deleted")
 
     def _copy_file(self, folder, file_, path):
         print(path)

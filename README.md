@@ -277,6 +277,14 @@ $ python setup.py sdist upload
 $ python setup.py test
 ```
 
+### To mark a focused test
+
+Add decorator `@pytest.mark.focus` to test. Run with
+
+```
+pytest -m focus
+```
+
 ## Tips
 
 To list just root files only:

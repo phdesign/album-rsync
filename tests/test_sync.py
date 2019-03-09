@@ -289,7 +289,7 @@ class TestSyncDelete(TestSyncBase):
         self.mock_delete_file.assert_not_called()
         self.mock_delete_folder.assert_not_called()
 
-    def test_should_delete_folder_in_destination_when_last_file_deleted(self):
+    def test_should_not_delete_folder_in_destination_when_last_file_deleted(self):
         self.config.delete = True
         setup_storage(self.src_storage, [
             {'folder': self.folder_one, 'files': []}
@@ -304,4 +304,4 @@ class TestSyncDelete(TestSyncBase):
             call(self.file_one, self.folder_one.name),
             call(self.file_two, self.folder_one.name)
         ], any_order=True)
-        self.mock_delete_folder.assert_called_once_with(self.folder_one)
+        self.mock_delete_folder.assert_not_called()
