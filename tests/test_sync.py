@@ -241,6 +241,21 @@ class TestSyncDelete(TestSyncBase):
         self.mock_delete_file.assert_not_called()
         self.mock_delete_folder.assert_not_called()
 
+    def test_should_delete_additional_files_in_destination_when_comparing_root_folders(self):
+        self.config.root_files = True
+        self.config.delete = True
+        setup_storage(self.src_storage, [
+            {'folder': self.root_folder, 'files': [self.file_one]}
+        ])
+        setup_storage(self.dest_storage, [
+            {'folder': self.root_folder, 'files': [self.file_one, self.file_two]}
+        ])
+
+        self.sync.run()
+
+        self.mock_delete_file.assert_called_once_with(self.file_two, '')
+        self.mock_delete_folder.assert_not_called()
+
     def test_should_delete_additional_folders_in_destination(self):
         self.config.delete = True
         setup_storage(self.src_storage, [

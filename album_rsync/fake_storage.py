@@ -33,7 +33,7 @@ class FakeStorage(Storage):
 
     def delete_folder(self, folder):
         redlof = next(f for f in self._folders \
-            if not (f['folder'] == folder or (f['folder'].is_root and folder.is_root)))
+            if f['folder'] == folder or (f['folder'].is_root and folder.is_root))
         self._folders.remove(redlof)
         return len(redlof['files'])
 
