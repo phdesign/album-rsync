@@ -26,7 +26,7 @@ class LocalStorage(Storage):
             return checksum.hexdigest()
 
     def list_folders(self):
-        logger.debug("copying files from {}".format(self.path))
+        logger.debug(f"copying files from {self.path}")
         return [
             FolderInfo(id=i, name=name, full_path=path)
             for i, (name, path) in enumerate((x, os.path.join(self.path, x)) for x in os.listdir(self.path))
@@ -52,12 +52,14 @@ class LocalStorage(Storage):
     def delete_folder(self, folder):
         deleted = 0
         folder_path = os.path.join(self.path, folder.name)
-        for f in os.listdir(folder_path): 
-            file_path = os.path.join(folder_path, f)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
-                deleted += 1
-        os.rmdir(folder_path)
+        for f in self.list_files(folder):
+            os.remove(f.full_path)
+            deleted += 1
+        # Check whether there's any files left
+        if not os.listdir(folder_path):
+            os.rmdir(folder_path)
+        else:
+            logger.debug(f"folder {folder.name} not empty, can't be deleted")
         return deleted
 
     def copy_file(self, fileinfo, folder_name, dest_storage):
