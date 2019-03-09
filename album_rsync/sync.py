@@ -100,7 +100,7 @@ class Sync:
         if not self._config.dry_run:
             self._delete_count += self._dest.delete_folder(folder)
         else:
-            self._delete_count += len(self._dest.list_files(folder))
+            self._delete_count += len(list(self._dest.list_files(folder)))
         logger.debug("{}...deleted".format(folder.name + os.sep))
 
     def _copy_file(self, folder, file_, path):

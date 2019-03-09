@@ -50,7 +50,15 @@ class LocalStorage(Storage):
         os.remove(file_path)
 
     def delete_folder(self, folder):
-        raise NotImplementedError()
+        deleted = 0
+        folder_path = os.path.join(self.path, folder.name)
+        for f in os.listdir(folder_path): 
+            file_path = os.path.join(folder_path, f)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+                deleted += 1
+        os.rmdir(folder_path)
+        return deleted
 
     def copy_file(self, fileinfo, folder_name, dest_storage):
         src = fileinfo.full_path
