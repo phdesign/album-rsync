@@ -22,3 +22,7 @@ class RemoteStorage(Storage):
         else:
             dest = os.path.join(dest_storage.path, folder_name, fileinfo.name)
             self.download(fileinfo, dest)
+
+    @abstractmethod
+    def logout(self):
+        pass

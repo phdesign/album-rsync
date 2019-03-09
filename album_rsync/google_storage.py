@@ -85,6 +85,9 @@ class GoogleStorage(RemoteStorage):
     def delete_folder(self, folder):
         raise NotImplementedError()
 
+    def logout(self):
+        self._config.save_tokens(self._config.PATH_GOOGLE, {})
+
     def _get_folder_by_name(self, name):
         folders = self._list_all_folders_with_cache()
         return next((x for x in folders if x.name.lower() == name.lower()), None)

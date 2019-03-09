@@ -154,6 +154,9 @@ class FlickrStorage(RemoteStorage):
         self._resiliently.call(photoset.delete)
         del self._photosets[folder.id]
 
+    def logout(self):
+        self._config.save_tokens(self._config.PATH_FLICKR, {})
+
     def _get_folder_by_name(self, name):
         return next((x for x in self._photosets.values() if x.title.lower() == name.lower()), None)
 
