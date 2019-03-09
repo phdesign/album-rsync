@@ -19,6 +19,7 @@ OPTIONS_SECTION = 'Options'
 DEFAULTS = {
     'src': '',
     'dest': '',
+    'logout': False,
     'list_only': False,
     'list_format': 'tree',
     'list_sort': False,
@@ -93,6 +94,7 @@ class Config:
                             help='the delay in seconds (may be decimal) before each network call')
         parser.add_argument('--retry', type=int, metavar='NUM',
                             help='the number of times to retry a network call (using exponential backoff) before failing')
+
         parser.add_argument('--flickr-api-key', type=str,
                             help='flickr API key')
         parser.add_argument('--flickr-api-secret', type=str,
@@ -103,6 +105,9 @@ class Config:
                             help='Google API key')
         parser.add_argument('--google-api-secret', type=str,
                             help='Google API secret')
+        # parser.add_argument('--logout', action='store_true',
+                            # help='logout of all remote services (deletes token file)')
+
         parser.add_argument('-v', '--verbose', action='store_true',
                             help='increase verbosity')
         parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
@@ -142,6 +147,13 @@ class Config:
     def default_datafile(self, filename):
         return os.path.join(os.path.expanduser('~'), '.' + filename)
 
+    def logout_(self):
+        token_path = self.locate_datafile(TOKEN_FILENAME)
+        if not token_path:
+            return None
+        logger.debug("removing token file {token_path}")
+        os.remove(token_path)
+
     def load_tokens(self, provider):
         token_path = self.locate_datafile(TOKEN_FILENAME)
         if not token_path:
@@ -163,7 +175,7 @@ class Config:
 
     def _read_ini(self, ini_path):
         options = DEFAULTS.copy()
-        config = configparser.SafeConfigParser()
+        config = configparser.ConfigParser()
 
         if ini_path:
             config.read(ini_path)

@@ -38,6 +38,11 @@ def main():
         config = Config()
         config.read()
 
+        if config.logout:
+            print("logging out...")
+            config.logout_()
+            exit()
+
         src_storage = _get_storage(config, config.src)
         if config.list_only or config.list_folders:
             walker = _get_walker(config, src_storage, config.list_format)

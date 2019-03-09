@@ -6,6 +6,7 @@ from .remote_storage import RemoteStorage
 from .file_info import FileInfo
 from .folder_info import FolderInfo
 from .config import __packagename__
+from .utils import choice
 
 """
 About Tags
@@ -27,7 +28,8 @@ a value, i.e. 123456 [which one is this]
 """     #pylint: disable=pointless-string-statement
 CHECKSUM_PREFIX = 'checksum:md5'
 EXTENSION_PREFIX = 'flickrrsync:extn'
-OAUTH_PERMISSIONS = 'delete'
+OAUTH_PERMISSIONS_WRITE = 'write'
+OAUTH_PERMISSIONS_DELETE = 'delete'
 logger = logging.getLogger(__name__)
 
 class FlickrStorage(RemoteStorage):
@@ -181,8 +183,10 @@ class FlickrStorage(RemoteStorage):
                 auth_handler = flickr_api.auth.AuthHandler.fromdict(tokens)
 
             else:
+                print("logging in...")
                 auth_handler = flickr_api.auth.AuthHandler()
-                permissions_requested = OAUTH_PERMISSIONS
+                can_delete = choice("request permission to delete files?", "no")
+                permissions_requested = OAUTH_PERMISSIONS_DELETE if can_delete else OAUTH_PERMISSIONS_WRITE
                 url = auth_handler.get_authorization_url(permissions_requested)
                 webbrowser.open(url)
                 print("Please enter the OAuth verifier tag once logged in:")
