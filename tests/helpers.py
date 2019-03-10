@@ -7,7 +7,7 @@ def setup_storage(storage, folders):
     Args:
         storage: A MagicMock to add mock behaviour to
         folders: A list of dictionaries of folder and file items in the format
-            [{ 'folder': FolderInfo, 'files': [FileInfo, ...] }, ...]
+            [{ 'folder': FolderInfo, 'files': [File, ...] }, ...]
 
     Example:
         helpers.setup_storage(self.storage, [

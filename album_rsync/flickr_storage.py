@@ -3,7 +3,7 @@ import webbrowser
 import logging
 import flickr_api
 from .storage import RemoteStorage
-from .file_info import FileInfo
+from .file import File
 from .folder_info import FolderInfo
 from .config import __packagename__
 from .utils import choice
@@ -67,7 +67,7 @@ class FlickrStorage(RemoteStorage):
                 in a photoset
 
         Returns:
-            A lazy loaded generator function of FileInfo objects
+            A lazy loaded generator function of File objects
 
         Raises:
             KeyError: If folder.id is unrecognised
@@ -87,23 +87,23 @@ class FlickrStorage(RemoteStorage):
 
         for photo in walker:
             self._photos[photo.id] = photo
-            fileinfo = self._get_file_info(photo)
-            if self._should_include(fileinfo.name, self._config.include, self._config.exclude):
-                yield fileinfo
+            file_ = self._get_file(photo)
+            if self._should_include(file_.name, self._config.include, self._config.exclude):
+                yield file_
 
-    def download(self, fileinfo, dest):
+    def download(self, file_, dest):
         """
         Downloads a photo from Flickr to local file system
 
         Args:
-            fileinfo: The file info object (as returned by list_files) of the file to download
+            file_: The file info object (as returned by list_files) of the file to download
             dest: The file system path to save the file to
 
         Raises:
-            KeyError: If the fileinfo.id is unrecognised
+            KeyError: If the file_.id is unrecognised
         """
         self.mkdirp(dest)
-        photo = self._photos[fileinfo.id]
+        photo = self._photos[file_.id]
         is_video = photo.media == 'video'
         size = 'Video Original' if is_video else 'Original'
         dest_without_extn = os.path.splitext(dest)[0]
@@ -119,7 +119,7 @@ class FlickrStorage(RemoteStorage):
             file_name: The name of the photo, any extension will be removed
 
         Raises:
-            KeyError: If the fileinfo.id is unrecognised
+            KeyError: If the file_.id is unrecognised
         """
         title, extension = os.path.splitext(file_name)
         tags = '{} "{}={}"'.format(self._config.flickr_tags, EXTENSION_PREFIX, extension[1:])
@@ -144,10 +144,10 @@ class FlickrStorage(RemoteStorage):
             else:
                 self._resiliently.call(photoset.addPhoto, photo=photo)
 
-    def delete_file(self, fileinfo, folder_name):
-        photo = self._photos[fileinfo.id]
+    def delete_file(self, file_, folder_name):
+        photo = self._photos[file_.id]
         self._resiliently.call(photo.delete)
-        del self._photos[fileinfo.id]
+        del self._photos[file_.id]
 
     def delete_folder(self, folder):
         photoset = self._photosets[folder.id]
@@ -160,7 +160,7 @@ class FlickrStorage(RemoteStorage):
     def _get_folder_by_name(self, name):
         return next((x for x in self._photosets.values() if x.title.lower() == name.lower()), None)
 
-    def _get_file_info(self, photo):
+    def _get_file(self, photo):
         name = photo.title if photo.title else photo.id
         checksum = None
         extension = None
@@ -173,7 +173,7 @@ class FlickrStorage(RemoteStorage):
             extension = photo.originalformat
         if extension:
             name += "." + extension
-        return FileInfo(id=photo.id, name=name, checksum=checksum)
+        return File(id=photo.id, name=name, checksum=checksum)
 
     def _authenticate(self):
         if self._is_authenticated:

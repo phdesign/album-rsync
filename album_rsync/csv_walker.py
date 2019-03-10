@@ -33,17 +33,17 @@ class CsvWalker(Walker):
         else:
             self._writer.writerow(["Folder", "Filename", "Checksum"])
             # Expand folder stream into file stream
-            files = folders.concat_map(lambda folder: Observable.from_((fileinfo, folder) for fileinfo in self._storage.list_files(folder)))
+            files = folders.concat_map(lambda folder: Observable.from_((file_, folder) for file_ in self._storage.list_files(folder)))
             # Print each file
             if self._config.list_sort:
                 files = files.to_sorted_list(key_selector=lambda x: "{} {}".format(x[1].name, x[0].name)) \
                     .flat_map(lambda x: x)
-            files.subscribe(on_next=unpack(lambda fileinfo, folder: self._print_file(folder, fileinfo)),
+            files.subscribe(on_next=unpack(lambda file_, folder: self._print_file(folder, file_)),
                             on_completed=lambda: self._print_summary(time.time() - start))
 
 
-    def _print_file(self, folder, fileinfo):
-        self._writer.writerow([folder.name if folder else '', fileinfo.name, fileinfo.checksum])
+    def _print_file(self, folder, file_):
+        self._writer.writerow([folder.name if folder else '', file_.name, file_.checksum])
 
     def _print_summary(self, elapsed):
         logger.info(f"\ndone in {round(elapsed, 2)} sec")

@@ -3,7 +3,7 @@ import hashlib
 import shutil
 import logging
 from .storage import Storage, RemoteStorage
-from .file_info import FileInfo
+from .file import File
 from .folder_info import FolderInfo
 
 logger = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ class LocalStorage(Storage):
     def list_files(self, folder):
         folder_path = os.path.join(self.path, folder.name)
         return [
-            FileInfo(
+            File(
                 id=i,
                 name=name,
                 full_path=path,
@@ -44,8 +44,8 @@ class LocalStorage(Storage):
             if self._should_include(name, self._config.include, self._config.exclude) and os.path.isfile(path)
         ]
 
-    def delete_file(self, fileinfo, folder_name):
-        file_path = os.path.join(self.path, folder_name, fileinfo.name)
+    def delete_file(self, file_, folder_name):
+        file_path = os.path.join(self.path, folder_name, file_.name)
         os.remove(file_path)
 
     def delete_folder(self, folder):
@@ -55,12 +55,12 @@ class LocalStorage(Storage):
         os.rmdir(folder_path)
         return True
 
-    def copy_file(self, fileinfo, folder_name, dest_storage):
-        src = fileinfo.full_path
+    def copy_file(self, file_, folder_name, dest_storage):
+        src = file_.full_path
         if isinstance(dest_storage, RemoteStorage):
-            dest_storage.upload(src, folder_name, fileinfo.name, fileinfo.checksum)
+            dest_storage.upload(src, folder_name, file_.name, file_.checksum)
         else:
-            relative_path = os.path.join(folder_name, fileinfo.name)
+            relative_path = os.path.join(folder_name, file_.name)
             dest = os.path.join(dest_storage.path, relative_path)
             self.mkdirp(dest)
             shutil.copyfile(src, dest)

@@ -4,7 +4,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + '/..')
 from unittest.mock import MagicMock, patch, call
 import tests.helpers
 from album_rsync.csv_walker import CsvWalker
-from album_rsync.file_info import FileInfo
+from album_rsync.file import File
 from album_rsync.folder_info import FolderInfo
 from album_rsync.root_folder_info import RootFolderInfo
 
@@ -28,10 +28,10 @@ class TestCsvWalker:
         self.folder_three = FolderInfo(id=3, name='C Folder')
         self.folder_four = FolderInfo(id=4, name='D Folder')
         self.root_folder = RootFolderInfo()
-        self.file_one = FileInfo(id=1, name='A File')
-        self.file_two = FileInfo(id=2, name='B File')
-        self.file_three = FileInfo(id=3, name='C File', checksum='abc123')
-        self.file_four = FileInfo(id=4, name='D File, with comma')
+        self.file_one = File(id=1, name='A File')
+        self.file_two = File(id=2, name='B File')
+        self.file_three = File(id=3, name='C File', checksum='abc123')
+        self.file_four = File(id=4, name='D File, with comma')
 
     def teardown_method(self):
         self.print_patch.stop()

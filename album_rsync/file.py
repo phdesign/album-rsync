@@ -1,4 +1,4 @@
-class FileInfo:
+class File:
 
     def __init__(self, **kwargs):
         self.id = kwargs.get('id')
@@ -8,4 +8,4 @@ class FileInfo:
         self.url = kwargs.get('url')
 
     def __repr__(self):
-        return "FileInfo: {{id={}, name={}}}".format(self.id, self.name)
+        return "File: {{id={}, name={}}}".format(self.id, self.name)

@@ -1,5 +1,5 @@
 from html import unescape
-from .file_info import FileInfo
+from .file import File
 from .folder_info import FolderInfo
 from .root_folder_info import RootFolderInfo
 from .storage import RemoteStorage
@@ -30,7 +30,7 @@ class GoogleStorage(RemoteStorage):
             folder: The FolderInfo object of the folder to list (from list_folders)
 
         Returns:
-            A lazy loaded generator function of FileInfo objects
+            A lazy loaded generator function of File objects
 
         Raises:
             KeyError: If folder.id is unrecognised
@@ -40,23 +40,23 @@ class GoogleStorage(RemoteStorage):
             raise NotImplementedError("Google Photos API does not support listing photos not in an album")
         media_items = self._api.get_media_in_folder(folder.id)
         for item in media_items:
-            fileinfo = self._get_file_info(item)
-            if self._should_include(fileinfo.name, self._config.include, self._config.exclude):
-                yield fileinfo
+            file_ = self._get_file(item)
+            if self._should_include(file_.name, self._config.include, self._config.exclude):
+                yield file_
 
-    def download(self, fileinfo, dest):
+    def download(self, file_, dest):
         """
         Downloads a photo to local file system
 
         Args:
-            fileinfo: The file info object (as returned by list_files) of the file to download
+            file_: The file info object (as returned by list_files) of the file to download
             dest: The file system path to save the file to
 
         Raises:
-            KeyError: If the fileinfo.id is unrecognised
+            KeyError: If the file_.id is unrecognised
         """
         self.mkdirp(dest)
-        self._api.download(fileinfo.url, dest)
+        self._api.download(file_.url, dest)
 
     def upload(self, src, folder_name, file_name, checksum):
         """
@@ -68,7 +68,7 @@ class GoogleStorage(RemoteStorage):
             file_name: The name of the photo, any extension will be removed
 
         Raises:
-            KeyError: If the file_info.id is unrecognised
+            KeyError: If the file_.id is unrecognised
         """
 
         if folder_name:
@@ -79,7 +79,7 @@ class GoogleStorage(RemoteStorage):
                 self._folders.append(folder)
         self._api.upload(src, file_name, folder.id)
 
-    def delete_file(self, fileinfo, folder_name):
+    def delete_file(self, file_, folder_name):
         raise NotImplementedError("Google Photos API does not support deleting photos")
 
     def delete_folder(self, folder):
@@ -92,9 +92,9 @@ class GoogleStorage(RemoteStorage):
         folders = self._list_all_folders_with_cache()
         return next((x for x in folders if x.name.lower() == name.lower()), None)
 
-    def _get_file_info(self, photo):
+    def _get_file(self, photo):
         name = photo['filename'] if photo['filename'] else photo['id']
-        return FileInfo(id=photo['id'], name=unescape(name), url=photo['baseUrl'] + '=d')
+        return File(id=photo['id'], name=unescape(name), url=photo['baseUrl'] + '=d')
 
     def _list_all_folders_with_cache(self):
         """

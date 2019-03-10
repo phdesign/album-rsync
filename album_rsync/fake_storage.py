@@ -1,7 +1,7 @@
 import time
 import random
 from .storage import Storage
-from .file_info import FileInfo
+from .file import File
 from .folder_info import FolderInfo
 from .root_folder_info import RootFolderInfo
 
@@ -20,13 +20,13 @@ class FakeStorage(Storage):
             if f['folder'] == folder or (f['folder'].is_root and folder.is_root)), [])
         return (self._intense_calculation(f) for f in files)
 
-    def copy_file(self, fileinfo, folder_name, dest_storage):
+    def copy_file(self, file_, folder_name, dest_storage):
         self._intense_calculation(None)
 
-    def delete_file(self, fileinfo, folder_name):
+    def delete_file(self, file_, folder_name):
         folder = next((f for f in self._folders \
             if f['folder'].name == folder_name or (not folder_name and f['folder'].is_root)))
-        folder['files'].remove(fileinfo)
+        folder['files'].remove(file_)
 
     def delete_folder(self, folder):
         to_delete = next(f for f in self._folders \
@@ -47,15 +47,15 @@ class FakeStorage(Storage):
     def _fake_data(self):
         if self._instance == 0:
             return [
-                {'folder': RootFolderInfo(), 'files': [FileInfo(id=10, name='A File')]},
-                {'folder': FolderInfo(id=2, name='A Folder'), 'files': [FileInfo(id=20, name='A File')]},
-                {'folder': FolderInfo(id=3, name='B Folder'), 'files': [FileInfo(id=30, name='A File'), FileInfo(id=31, name='B File')]},
-                {'folder': FolderInfo(id=4, name='C Folder'), 'files': [FileInfo(id=40, name='A File'), FileInfo(id=41, name='B File')]},
+                {'folder': RootFolderInfo(), 'files': [File(id=10, name='A File')]},
+                {'folder': FolderInfo(id=2, name='A Folder'), 'files': [File(id=20, name='A File')]},
+                {'folder': FolderInfo(id=3, name='B Folder'), 'files': [File(id=30, name='A File'), File(id=31, name='B File')]},
+                {'folder': FolderInfo(id=4, name='C Folder'), 'files': [File(id=40, name='A File'), File(id=41, name='B File')]},
             ]
 
         return [
-            {'folder': RootFolderInfo(), 'files': [FileInfo(id=10, name='A File'), FileInfo(id=31, name='B File')]},
-            {'folder': FolderInfo(id=2, name='A Folder'), 'files': [FileInfo(id=20, name='A File')]},
-            {'folder': FolderInfo(id=4, name='C Folder'), 'files': [FileInfo(id=41, name='B File')]},
-            {'folder': FolderInfo(id=5, name='D Folder'), 'files': [FileInfo(id=50, name='A File')]},
+            {'folder': RootFolderInfo(), 'files': [File(id=10, name='A File'), File(id=31, name='B File')]},
+            {'folder': FolderInfo(id=2, name='A Folder'), 'files': [File(id=20, name='A File')]},
+            {'folder': FolderInfo(id=4, name='C Folder'), 'files': [File(id=41, name='B File')]},
+            {'folder': FolderInfo(id=5, name='D Folder'), 'files': [File(id=50, name='A File')]},
         ]

@@ -102,11 +102,11 @@ class Sync:
         else:
             logger.debug(f"{path}...not empty, can't be deleted")
 
-    def _delete_file(self, fileinfo, folder):
-        path = os.path.join(folder.name, fileinfo.name)
+    def _delete_file(self, file_, folder):
+        path = os.path.join(folder.name, file_.name)
         print(f"deleting {path}")
         if not self._config.dry_run:
-            self._dest.delete_file(fileinfo, folder.name)
+            self._dest.delete_file(file_, folder.name)
         self._delete_count += 1
         logger.debug(f"{path}...deleted")
 

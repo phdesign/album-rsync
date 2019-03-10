@@ -4,7 +4,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + '/..')
 from unittest.mock import MagicMock, patch, call
 from tests.helpers import setup_storage
 from album_rsync.sync import Sync
-from album_rsync.file_info import FileInfo
+from album_rsync.file import File
 from album_rsync.folder_info import FolderInfo
 from album_rsync.root_folder_info import RootFolderInfo
 
@@ -27,8 +27,8 @@ class TestSyncBase:
         self.folder_three = FolderInfo(id=3, name='C')
         self.folder_four = FolderInfo(id=4, name='D')
         self.root_folder = RootFolderInfo()
-        self.file_one = FileInfo(id=1, name='A')
-        self.file_two = FileInfo(id=1, name='B')
+        self.file_one = File(id=1, name='A')
+        self.file_two = File(id=1, name='B')
 
         self.sync = Sync(self.config, self.src_storage, self.dest_storage)
         self.mock = MagicMock()

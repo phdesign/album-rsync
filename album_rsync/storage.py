@@ -14,11 +14,11 @@ class Storage:
         pass
 
     @abstractmethod
-    def copy_file(self, fileinfo, folder_name, dest_storage):
+    def copy_file(self, file_, folder_name, dest_storage):
         pass
 
     @abstractmethod
-    def delete_file(self, fileinfo, folder_name):
+    def delete_file(self, file_, folder_name):
         pass
 
     @abstractmethod
@@ -46,19 +46,19 @@ class Storage:
 class RemoteStorage(Storage):
 
     @abstractmethod
-    def download(self, fileinfo, dest):
+    def download(self, file_, dest):
         pass
 
     @abstractmethod
     def upload(self, src, folder_name, file_name, checksum):
         pass
 
-    def copy_file(self, fileinfo, folder_name, dest_storage):
+    def copy_file(self, file_, folder_name, dest_storage):
         if isinstance(dest_storage, RemoteStorage):
             temp_file = NamedTemporaryFile()
-            self.download(fileinfo, temp_file.name)
-            dest_storage.upload(temp_file.name, folder_name, fileinfo.name, fileinfo.checksum)
+            self.download(file_, temp_file.name)
+            dest_storage.upload(temp_file.name, folder_name, file_.name, file_.checksum)
             temp_file.close()
         else:
-            dest = os.path.join(dest_storage.path, folder_name, fileinfo.name)
-            self.download(fileinfo, dest)
+            dest = os.path.join(dest_storage.path, folder_name, file_.name)
+            self.download(file_, dest)
