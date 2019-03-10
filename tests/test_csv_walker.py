@@ -5,8 +5,7 @@ from unittest.mock import MagicMock, patch, call
 import tests.helpers
 from album_rsync.csv_walker import CsvWalker
 from album_rsync.file import File
-from album_rsync.folder_info import FolderInfo
-from album_rsync.root_folder_info import RootFolderInfo
+from album_rsync.folder import Folder, RootFolder
 
 class TestCsvWalker:
 
@@ -23,11 +22,11 @@ class TestCsvWalker:
         self.config.list_folders = False
         self.config.list_sort = False
         self.storage = MagicMock()
-        self.folder_one = FolderInfo(id=1, name='A Folder')
-        self.folder_two = FolderInfo(id=2, name='B Folder')
-        self.folder_three = FolderInfo(id=3, name='C Folder')
-        self.folder_four = FolderInfo(id=4, name='D Folder')
-        self.root_folder = RootFolderInfo()
+        self.folder_one = Folder(id=1, name='A Folder')
+        self.folder_two = Folder(id=2, name='B Folder')
+        self.folder_three = Folder(id=3, name='C Folder')
+        self.folder_four = Folder(id=4, name='D Folder')
+        self.root_folder = RootFolder()
         self.file_one = File(id=1, name='A File')
         self.file_two = File(id=2, name='B File')
         self.file_three = File(id=3, name='C File', checksum='abc123')

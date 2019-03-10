@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from album_rsync.resiliently import Resiliently
 from album_rsync.flickr_storage import FlickrStorage
-from album_rsync.root_folder_info import RootFolderInfo
+from album_rsync.folder import RootFolder
 
 class TestFlickrStorage:
 
@@ -86,7 +86,7 @@ class TestFlickrStorage:
     def test_list_files_should_list_files_when_root_folder_is_passed(self, files_fixture):
         self.user.getNotInSetPhotos.return_value = files_fixture
         storage = FlickrStorage(self.config, Resiliently(self.config))
-        folder = RootFolderInfo()
+        folder = RootFolder()
         files = list(storage.list_files(folder))
 
         assert len(files) == 2

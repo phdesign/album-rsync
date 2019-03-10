@@ -4,7 +4,7 @@ import logging
 import csv
 from rx import Observable
 from .walker import Walker
-from .root_folder_info import RootFolderInfo
+from .folder import RootFolder
 from .utils import unpack
 
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ class CsvWalker(Walker):
         # Create source stream
         folders = Observable.from_(self._storage.list_folders())
         if self._config.root_files:
-            folders = folders.start_with(RootFolderInfo())
+            folders = folders.start_with(RootFolder())
         if self._config.list_folders:
             self._writer.writerow(["Folder"])
             if self._config.list_sort:

@@ -1,7 +1,6 @@
 from html import unescape
 from .file import File
-from .folder_info import FolderInfo
-from .root_folder_info import RootFolderInfo
+from .folder import Folder, RootFolder
 from .storage import RemoteStorage
 
 class GoogleStorage(RemoteStorage):
@@ -16,7 +15,7 @@ class GoogleStorage(RemoteStorage):
         Lists all albums in Google
 
         Returns:
-            A lazy loaded generator function of FolderInfo objects
+            A lazy loaded generator function of Folder objects
         """
         return (folder for folder in self._list_all_folders_with_cache()
                 if self._should_include(folder.name, self._config.include_dir, self._config.exclude_dir))
@@ -27,7 +26,7 @@ class GoogleStorage(RemoteStorage):
         Note that Google Photos does not support listing 'root' items, e.g. photos not in an album
 
         Args:
-            folder: The FolderInfo object of the folder to list (from list_folders)
+            folder: The Folder object of the folder to list (from list_folders)
 
         Returns:
             A lazy loaded generator function of File objects
@@ -36,7 +35,7 @@ class GoogleStorage(RemoteStorage):
             KeyError: If folder.id is unrecognised
             NotImplementedError: If folder is the root folder
         """
-        if isinstance(folder, RootFolderInfo):
+        if isinstance(folder, RootFolder):
             raise NotImplementedError("Google Photos API does not support listing photos not in an album")
         media_items = self._api.get_media_in_folder(folder.id)
         for item in media_items:
@@ -75,7 +74,7 @@ class GoogleStorage(RemoteStorage):
             folder = self._get_folder_by_name(folder_name)
             if not folder:
                 album = self._api.create_album(folder_name)
-                folder = FolderInfo(id=album['id'], name=unescape(album['title']))
+                folder = Folder(id=album['id'], name=unescape(album['title']))
                 self._folders.append(folder)
         self._api.upload(src, file_name, folder.id)
 
@@ -104,5 +103,5 @@ class GoogleStorage(RemoteStorage):
         """
         if not self._folders:
             albums = self._api.list_albums()
-            self._folders = [FolderInfo(id=album['id'], name=unescape(album['title'])) for album in albums]
+            self._folders = [Folder(id=album['id'], name=unescape(album['title'])) for album in albums]
         return self._folders

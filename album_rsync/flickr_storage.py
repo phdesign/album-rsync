@@ -4,7 +4,7 @@ import logging
 import flickr_api
 from .storage import RemoteStorage
 from .file import File
-from .folder_info import FolderInfo
+from .folder import Folder
 from .config import __packagename__
 from .utils import choice
 
@@ -47,14 +47,14 @@ class FlickrStorage(RemoteStorage):
         Lists all photosets in Flickr
 
         Returns:
-            A lazy loaded generator function of FolderInfo objects
+            A lazy loaded generator function of Folder objects
         """
         self._authenticate()
 
         walker = self._resiliently.call(flickr_api.objects.Walker, self._user.getPhotosets)     #pylint: disable=no-member
         for photoset in walker:
             self._photosets[photoset.id] = photoset
-            folder = FolderInfo(id=photoset.id, name=photoset.title)
+            folder = Folder(id=photoset.id, name=photoset.title)
             if self._should_include(folder.name, self._config.include_dir, self._config.exclude_dir):
                 yield folder
 
@@ -63,7 +63,7 @@ class FlickrStorage(RemoteStorage):
         Lists all photos within a photoset
 
         Args:
-            folder: The FolderInfo object of the folder to list (from list_folders), or None to list all photos not
+            folder: The Folder object of the folder to list (from list_folders), or None to list all photos not
                 in a photoset
 
         Returns:

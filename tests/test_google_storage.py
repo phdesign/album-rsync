@@ -4,8 +4,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + '/..')
 from unittest.mock import MagicMock
 import pytest
 from album_rsync.google_storage import GoogleStorage
-from album_rsync.folder_info import FolderInfo
-from album_rsync.root_folder_info import RootFolderInfo
+from album_rsync.folder import Folder, RootFolder
 
 class TestGoogleStorage:
 
@@ -78,14 +77,14 @@ class TestGoogleStorage:
     def test_list_files_should_return_files_given_there_are_files(self, files_fixture):
         self.api.get_media_in_folder.return_value = files_fixture
         storage = GoogleStorage(self.config, self.api)
-        folder = FolderInfo(id=123, name='test')
+        folder = Folder(id=123, name='test')
         files = list(storage.list_files(folder))
 
         assert len(files) == 2
 
     def test_list_files_should_raise_not_implemented_when_root_folder_is_passed(self):
         storage = GoogleStorage(self.config, self.api)
-        folder = RootFolderInfo()
+        folder = RootFolder()
         with pytest.raises(NotImplementedError):
             _ = list(storage.list_files(folder))
 
@@ -93,7 +92,7 @@ class TestGoogleStorage:
         self.config.exclude = 'image1'
         self.api.get_media_in_folder.return_value = files_fixture
         storage = GoogleStorage(self.config, self.api)
-        folder = FolderInfo(id=123, name='test')
+        folder = Folder(id=123, name='test')
         files = list(storage.list_files(folder))
 
         assert len(files) == 1
@@ -103,7 +102,7 @@ class TestGoogleStorage:
         self.config.include = 'image1'
         self.api.get_media_in_folder.return_value = files_fixture
         storage = GoogleStorage(self.config, self.api)
-        folder = FolderInfo(id=123, name='test')
+        folder = Folder(id=123, name='test')
         files = list(storage.list_files(folder))
 
         assert len(files) == 1
@@ -112,7 +111,7 @@ class TestGoogleStorage:
     def test_list_files_should_not_list_files_given_there_are_no_files(self):
         self.api.get_media_in_folder.return_value = []
         storage = GoogleStorage(self.config, self.api)
-        folder = FolderInfo(id=123, name='test')
+        folder = Folder(id=123, name='test')
         files = list(storage.list_files(folder))
 
         assert not files

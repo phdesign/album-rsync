@@ -5,8 +5,7 @@ from unittest.mock import MagicMock, patch, call
 from tests.helpers import setup_storage
 from album_rsync.sync import Sync
 from album_rsync.file import File
-from album_rsync.folder_info import FolderInfo
-from album_rsync.root_folder_info import RootFolderInfo
+from album_rsync.folder import Folder, RootFolder
 
 class TestSyncBase:
 
@@ -22,11 +21,11 @@ class TestSyncBase:
         self.config.dry_run = False
         self.src_storage = MagicMock()
         self.dest_storage = MagicMock()
-        self.folder_one = FolderInfo(id=1, name='A')
-        self.folder_two = FolderInfo(id=2, name='B')
-        self.folder_three = FolderInfo(id=3, name='C')
-        self.folder_four = FolderInfo(id=4, name='D')
-        self.root_folder = RootFolderInfo()
+        self.folder_one = Folder(id=1, name='A')
+        self.folder_two = Folder(id=2, name='B')
+        self.folder_three = Folder(id=3, name='C')
+        self.folder_four = Folder(id=4, name='D')
+        self.root_folder = RootFolder()
         self.file_one = File(id=1, name='A')
         self.file_two = File(id=1, name='B')
 

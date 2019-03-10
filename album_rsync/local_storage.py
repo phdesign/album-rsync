@@ -4,7 +4,7 @@ import shutil
 import logging
 from .storage import Storage, RemoteStorage
 from .file import File
-from .folder_info import FolderInfo
+from .folder import Folder
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ class LocalStorage(Storage):
     def list_folders(self):
         logger.debug(f"copying files from {self.path}")
         return [
-            FolderInfo(id=i, name=name, full_path=path)
+            Folder(id=i, name=name, full_path=path)
             for i, (name, path) in enumerate((x, os.path.join(self.path, x)) for x in os.listdir(self.path))
             if self._should_include(name, self._config.include_dir, self._config.exclude_dir) and os.path.isdir(path)
         ]

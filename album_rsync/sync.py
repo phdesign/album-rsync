@@ -3,7 +3,7 @@ import time
 import logging
 from itertools import tee
 from urllib.error import URLError
-from .root_folder_info import RootFolderInfo
+from .folder import RootFolder
 from .utils import choice
 
 logger = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ class Sync:
 
         # Merge root files if requested
         if self._config.root_files:
-            self._merge_folders(RootFolderInfo(), RootFolderInfo())
+            self._merge_folders(RootFolder(), RootFolder())
 
         self._print_summary(time.time() - start, self._copy_count, self._skip_count, self._delete_count)
 

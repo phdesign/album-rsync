@@ -2,8 +2,7 @@ import time
 import random
 from .storage import Storage
 from .file import File
-from .folder_info import FolderInfo
-from .root_folder_info import RootFolderInfo
+from .folder import Folder, RootFolder
 
 class FakeStorage(Storage):
     def __init__(self, config, instance_count):
@@ -47,15 +46,15 @@ class FakeStorage(Storage):
     def _fake_data(self):
         if self._instance == 0:
             return [
-                {'folder': RootFolderInfo(), 'files': [File(id=10, name='A File')]},
-                {'folder': FolderInfo(id=2, name='A Folder'), 'files': [File(id=20, name='A File')]},
-                {'folder': FolderInfo(id=3, name='B Folder'), 'files': [File(id=30, name='A File'), File(id=31, name='B File')]},
-                {'folder': FolderInfo(id=4, name='C Folder'), 'files': [File(id=40, name='A File'), File(id=41, name='B File')]},
+                {'folder': RootFolder(), 'files': [File(id=10, name='A File')]},
+                {'folder': Folder(id=2, name='A Folder'), 'files': [File(id=20, name='A File')]},
+                {'folder': Folder(id=3, name='B Folder'), 'files': [File(id=30, name='A File'), File(id=31, name='B File')]},
+                {'folder': Folder(id=4, name='C Folder'), 'files': [File(id=40, name='A File'), File(id=41, name='B File')]},
             ]
 
         return [
-            {'folder': RootFolderInfo(), 'files': [File(id=10, name='A File'), File(id=31, name='B File')]},
-            {'folder': FolderInfo(id=2, name='A Folder'), 'files': [File(id=20, name='A File')]},
-            {'folder': FolderInfo(id=4, name='C Folder'), 'files': [File(id=41, name='B File')]},
-            {'folder': FolderInfo(id=5, name='D Folder'), 'files': [File(id=50, name='A File')]},
+            {'folder': RootFolder(), 'files': [File(id=10, name='A File'), File(id=31, name='B File')]},
+            {'folder': Folder(id=2, name='A Folder'), 'files': [File(id=20, name='A File')]},
+            {'folder': Folder(id=4, name='C Folder'), 'files': [File(id=41, name='B File')]},
+            {'folder': Folder(id=5, name='D Folder'), 'files': [File(id=50, name='A File')]},
         ]

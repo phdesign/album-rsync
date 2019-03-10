@@ -393,7 +393,5 @@ $ PYTHONIOENCODING=utf-8 album-rsync ./flickr --list-only
 * Fix duplicate albums issue
 * Why does it make 3 api calls for every photo in --list-only --list-sort mode?
 * --init to setup a new .ini file and walk through auth process
-* Rename FileInfo > Media, FolderInfo > Album
 * Add throttling and delay to Google
 * Document delete functionality
-* Bug with root folders. try `album-rsync fake fake --delete --root-files` expected to delete B File

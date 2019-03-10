@@ -3,7 +3,7 @@ import logging
 from rx import Observable, AnonymousObservable
 from rx.internal import extensionmethod
 from .walker import Walker
-from .root_folder_info import RootFolderInfo
+from .folder import RootFolder
 from .utils import unpack
 
 UNICODE_LEAF = "├─── "
@@ -48,7 +48,7 @@ class TreeWalker(Walker):
         folders = Observable.from_(folderlist) \
             .map(lambda f: {'folder': f})
         if self._config.root_files:
-            folders = folders.start_with({'folder': RootFolderInfo()})
+            folders = folders.start_with({'folder': RootFolder()})
 
         # Expand folder messages into file messages
         folders = folders.publish().auto_connect(2)
