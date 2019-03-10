@@ -24,6 +24,10 @@ class Storage:
     def delete_folder(self, folder):
         pass
 
+    @abstractmethod
+    def logout(self):
+        pass
+
     def mkdirp(self, path):
         """
         Creates all missing folders in the path

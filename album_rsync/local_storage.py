@@ -65,3 +65,6 @@ class LocalStorage(Storage):
             dest = os.path.join(dest_storage.path, relative_path)
             self.mkdirp(dest)
             shutil.copyfile(src, dest)
+
+    def logout(self):
+        raise NotImplementedError()

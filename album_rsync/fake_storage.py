@@ -39,6 +39,9 @@ class FakeStorage(Storage):
         self._folders.remove(to_delete)
         return True
 
+    def logout(self):
+        pass
+
     def _intense_calculation(self, value):
         # sleep for a random short duration between 0.5 to 2.0 seconds to simulate a long-running calculation
         time.sleep(random.randint(2, 6) * .1)

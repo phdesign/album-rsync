@@ -57,7 +57,6 @@ class Config:
         self._args = {}
 
     def __getattr__(self, name):
-        # Thanks: http://stackoverflow.com/questions/26467564/how-to-copy-all-attributes-of-one-python-object-to-another
         return getattr(self._args, name)
 
     def read(self):
@@ -106,7 +105,7 @@ class Config:
         parser.add_argument('--google-api-secret', type=str,
                             help='Google API secret')
         parser.add_argument('--logout', action='store_true',
-                            help='logout of all remote services (deletes token file)')
+                            help='logout of remote service (service determined by src)')
 
         parser.add_argument('-v', '--verbose', action='store_true',
                             help='increase verbosity')
