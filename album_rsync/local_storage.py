@@ -2,8 +2,7 @@ import os
 import hashlib
 import shutil
 import logging
-from .storage import Storage
-from .remote_storage import RemoteStorage
+from .storage import Storage, RemoteStorage
 from .file_info import FileInfo
 from .folder_info import FolderInfo
 

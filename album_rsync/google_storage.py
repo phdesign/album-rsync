@@ -2,7 +2,7 @@ from html import unescape
 from .file_info import FileInfo
 from .folder_info import FolderInfo
 from .root_folder_info import RootFolderInfo
-from .remote_storage import RemoteStorage
+from .storage import RemoteStorage
 
 class GoogleStorage(RemoteStorage):
 

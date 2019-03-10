@@ -2,7 +2,7 @@ import os
 import webbrowser
 import logging
 import flickr_api
-from .remote_storage import RemoteStorage
+from .storage import RemoteStorage
 from .file_info import FileInfo
 from .folder_info import FolderInfo
 from .config import __packagename__

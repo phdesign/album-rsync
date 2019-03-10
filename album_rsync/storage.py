@@ -1,5 +1,6 @@
 import os
 import re
+from tempfile import NamedTemporaryFile
 from abc import abstractmethod
 
 class Storage:
@@ -41,3 +42,23 @@ class Storage:
     def _should_include(self, name, include_pattern, exclude_pattern):
         return ((not include_pattern or re.search(include_pattern, name, flags=re.IGNORECASE)) and
                 (not exclude_pattern or not re.search(exclude_pattern, name, flags=re.IGNORECASE)))
+
+class RemoteStorage(Storage):
+
+    @abstractmethod
+    def download(self, fileinfo, dest):
+        pass
+
+    @abstractmethod
+    def upload(self, src, folder_name, file_name, checksum):
+        pass
+
+    def copy_file(self, fileinfo, folder_name, dest_storage):
+        if isinstance(dest_storage, RemoteStorage):
+            temp_file = NamedTemporaryFile()
+            self.download(fileinfo, temp_file.name)
+            dest_storage.upload(temp_file.name, folder_name, fileinfo.name, fileinfo.checksum)
+            temp_file.close()
+        else:
+            dest = os.path.join(dest_storage.path, folder_name, fileinfo.name)
+            self.download(fileinfo, dest)

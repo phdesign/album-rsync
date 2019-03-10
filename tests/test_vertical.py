@@ -3,7 +3,6 @@ import os, sys
 from io import StringIO
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + '/..')
 from unittest.mock import patch, Mock
-import pytest
 from album_rsync.__main__ import main
 
 @patch('time.sleep', Mock())
