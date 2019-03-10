@@ -8,12 +8,6 @@ from album_rsync.__main__ import main
 
 class TestVertical:
 
-    def setup_method(self):
-        pass
-
-    def teardown_method(self):
-        pass
-
     @pytest.mark.focus
     @patch('sys.stderr', new_callable=StringIO)
     @patch('sys.stdout', new_callable=StringIO)
