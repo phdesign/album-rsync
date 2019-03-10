@@ -37,7 +37,7 @@ class GoogleStorage(RemoteStorage):
             NotImplementedError: If folder is the root folder
         """
         if isinstance(folder, RootFolderInfo):
-            raise NotImplementedError
+            raise NotImplementedError("Google Photos API does not support listing photos not in an album")
         media_items = self._api.get_media_in_folder(folder.id)
         for item in media_items:
             fileinfo = self._get_file_info(item)
@@ -80,10 +80,10 @@ class GoogleStorage(RemoteStorage):
         self._api.upload(src, file_name, folder.id)
 
     def delete_file(self, fileinfo, folder_name):
-        raise NotImplementedError()
+        raise NotImplementedError("Google Photos API does not support deleting photos")
 
     def delete_folder(self, folder):
-        raise NotImplementedError()
+        raise NotImplementedError("Google Photos API does not support deleting photos")
 
     def logout(self):
         self._config.save_tokens(self._config.PATH_GOOGLE, {})

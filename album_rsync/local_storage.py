@@ -67,4 +67,4 @@ class LocalStorage(Storage):
             shutil.copyfile(src, dest)
 
     def logout(self):
-        raise NotImplementedError()
+        raise NotImplementedError("can't logout of the local file system")

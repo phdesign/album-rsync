@@ -31,7 +31,7 @@ def _get_walker(config, storage, list_format):
         return TreeWalker(config, storage)
     if list_format == Config.LIST_FORMAT_CSV:
         return CsvWalker(config, storage)
-    raise ValueError('Unrecognised value for list-format: {}'.format(list_format))
+    raise ValueError(f"Unrecognised value for list-format: {list_format}")
 
 def main():
     try:
@@ -52,7 +52,10 @@ def main():
             sync.run()
 
     except URLError as err:
-        logger.error("Error connecting to server. {!r}".format(err))
+        logger.error(f"error connecting to server: {err}")
+        exit(1)
+    except NotImplementedError as err:
+        logger.error(f"feature not supported: {err}")
         exit(1)
     except KeyboardInterrupt:
         exit()
