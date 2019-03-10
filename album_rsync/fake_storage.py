@@ -6,14 +6,11 @@ from .folder_info import FolderInfo
 from .root_folder_info import RootFolderInfo
 
 class FakeStorage(Storage):
-    instance_count = 0
-
-    def __init__(self, config):
+    def __init__(self, config, instance_count):
         self.path = ''
         self._config = config
-        self._instance = FakeStorage.instance_count
+        self._instance = instance_count
         self._folders = self._fake_data()
-        FakeStorage.instance_count += 1
 
     def list_folders(self):
         return (self._intense_calculation(f['folder']) for f in self._folders if not f['folder'].is_root)

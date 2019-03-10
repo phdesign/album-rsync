@@ -14,7 +14,7 @@ from .google_api import GoogleApi
 
 logger = logging.getLogger(__name__)
 
-def _get_storage(config, path):
+def _get_storage(config, path, count):
     if path.lower() == Config.PATH_GOOGLE:
         resiliently = Resiliently(config)
         api = GoogleApi(config, resiliently)
@@ -23,7 +23,7 @@ def _get_storage(config, path):
         resiliently = Resiliently(config)
         return FlickrStorage(config, resiliently)
     if path.lower() == Config.PATH_FAKE:
-        return FakeStorage(config)
+        return FakeStorage(config, count)
     return LocalStorage(config, path)
 
 def _get_walker(config, storage, list_format):
@@ -38,7 +38,7 @@ def main():
         config = Config()
         config.read()
 
-        src_storage = _get_storage(config, config.src)
+        src_storage = _get_storage(config, config.src, 0)
         if config.logout:
             print("logging out...")
             src_storage.logout()
@@ -47,7 +47,7 @@ def main():
             walker = _get_walker(config, src_storage, config.list_format)
             walker.walk()
         else:
-            dest_storage = _get_storage(config, config.dest)
+            dest_storage = _get_storage(config, config.dest, 1)
             sync = Sync(config, src_storage, dest_storage)
             sync.run()
 
