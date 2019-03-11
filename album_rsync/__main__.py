@@ -15,6 +15,17 @@ from .google_api import GoogleApi
 logger = logging.getLogger(__name__)
 
 def _get_storage(config, path, count):
+    """
+    Storage provider factory.
+
+    Args:
+      config: Current configuration
+      path: Storage provider path, e.g. `flickr`, `google` or a file path
+      count: Provider instance count (used for fake storage)
+
+    Returns:
+        A storage provider
+    """
     if path.lower() == Config.PATH_GOOGLE:
         resiliently = Resiliently(config)
         api = GoogleApi(config, resiliently)
@@ -27,6 +38,17 @@ def _get_storage(config, path, count):
     return LocalStorage(config, path)
 
 def _get_walker(config, storage, list_format):
+    """
+    File walker factory.
+
+    Args:
+      config: Current configuration
+      storage: The storage provider
+      list_format: The type of walker to create
+
+    Returns:
+        A file walker
+    """
     if list_format == Config.LIST_FORMAT_TREE:
         return TreeWalker(config, storage)
     if list_format == Config.LIST_FORMAT_CSV:

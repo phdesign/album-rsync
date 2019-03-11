@@ -20,10 +20,6 @@ lint:
 	@source $(VENV_ACTIVATE); \
 	pylint --exit-zero -f colorized {**,.}/*.py
 
-doc:
-	@source $(VENV_ACTIVATE); \
-	pyment -o google -w album_rsync
-
 test: lint
 	@source $(VENV_ACTIVATE); \
 	python setup.py test
