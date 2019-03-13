@@ -7,15 +7,38 @@ class Storage:
 
     @abstractmethod
     def list_folders(self):
-        pass
+        """Lists all folders.
+
+        Applies any filters as specified in config.
+
+        Returns:
+            A lazy loaded generator function of Folder objects.
+        """
 
     @abstractmethod
     def list_files(self, folder):
-        pass
+        """Lists all files.
+
+        Applies any filters as specified in config.
+
+        Args:
+            folder: The Folder object of the folder to list (from list_folders).
+
+        Returns:
+            A lazy loaded generator function of File objects.
+        """
 
     @abstractmethod
     def copy_file(self, file_, folder_name, dest_storage):
-        pass
+        """Copies a file to from this provider.
+
+        Copies a file from this provider to the a destination provider and folder.
+
+        Args:
+            file_: The File object to copy.
+            folder_name: The name of the destination folder to copy to.
+            dest_storage: The destination storage provider to copy to.
+        """
 
     @abstractmethod
     def delete_file(self, file_, folder_name):
@@ -30,11 +53,10 @@ class Storage:
         pass
 
     def mkdirp(self, path):
-        """
-        Creates all missing folders in the path
+        """Creates all missing folders in the path.
 
         Args:
-            path: A file system path to create, may include a filename (ignored)
+            path: A file system path to create, may include a filename (ignored).
         """
         if not os.path.exists(os.path.dirname(path)):
             os.makedirs(os.path.dirname(path), exist_ok=True)

@@ -17,11 +17,11 @@ venv:
 	pip install -r tests/requirements.txt
 
 lint:
-	@source $(VENV_ACTIVATE); \
+	@test -d $(VENV_NAME) && source $(VENV_ACTIVATE); \
 	pylint --exit-zero -f colorized {**,.}/*.py
 
 test: lint
-	@source $(VENV_ACTIVATE); \
+	@test -d $(VENV_NAME) && source $(VENV_ACTIVATE); \
 	python setup.py test
 
 clean:

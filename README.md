@@ -37,24 +37,39 @@ Currently Flickr and Google Photos are supported.
 
 ## Authenticating with Flickr
 
-Two keys are provided by Flickr, an api key and a secret. To make your application aware of these keys there are two methods:
-* provide `--api-key` and `--api-secret` arguments to the command line
+API keys are needed to authorise this app. To create API keys, visit https://www.flickr.com/services/api/misc.api_keys.html.
+
+Two keys are provided by Flickr, an api key and a secret. To enable the app to use these keys, either:
+
+* provide `--flickr-api-key` and `--flickr-api-secret` arguments to the command line
 * create a config file in $HOME/.album-rsync.ini with the following entries
 
 ```
-API_KEY = xxxxxxxxxxxxxxxxxxx
-API_SECRET = yyyyyyyyyyyyyy
+FLICKR_API_KEY = xxxxxxxxxxxxxxxxxxx
+FLICKR_API_SECRET = yyyyyyyyyyyyyy
 ```
 
-where x's and y's are replaced by the values provided by Flickr.
+The first time you perform any action against the Flickr API this app will prompt you to authorise access to your account, you can choose to request delete permissions, or write only permissions if you do not want any photos deleted from Flickr.
 
 ## Authenticating with Google Photos
 
-// TODO
+API keys are needed to authorise this app. To create API keys, visit https://console.developers.google.com/apis/library/photoslibrary.googleapis.com
+
+Two keys are provided by Google, an api key and a secret. To enable the app to use these keys, either:
+
+- provide `--google-api-key` and `--google-api-secret` arguments to the command line
+- create a config file in $HOME/.album-rsync.ini with the following entries
+
+```
+GOOGLE_API_KEY = xxxxxxxxxxxxxxxxxxx
+GOOGLE_API_SECRET = yyyyyyyyyyyyyy
+```
+
+The first time you perform any action against the Google Photos API this app will prompt you to authorise access to your account.
 
 ## Listing files
 
-The `--list-only` flag will print a list of files in the source storage provider, this can either be Flickr by specifying the `src` as `Flickr` or a local file system path. Use `--sort-files` to sort the files alphabetically. This feature is useful for manually creating a diff between your local files and Flickr files.
+The `--list-only` flag will print a list of files in the source storage provider, this can either be Flickr by specifying the `src` as `flickr`, `google` or a local file system path. Use `--list-sort` to sort the files alphabetically (slower). This feature is useful for manually creating a diff between your local files and Flickr files.
 
 e.g. List all files in Flickr photo sets
 
@@ -62,7 +77,13 @@ e.g. List all files in Flickr photo sets
 $ album-rsync flickr --list-only
 ```
 
-Or List all files in a local folder
+or list sorted files from Google 
+
+```
+$ album-rsync google --list-only --list-sort
+```
+
+or list all files in a local folder
 
 ```
 $ album-rsync ~/Pictures --list-only
@@ -131,7 +152,23 @@ You can even copy from a local folder to another local folder
 $ album-rsync ~/Pictures/from ~/Pictures/to
 ```
 
-Files are matched by folder names and file names. E.g. if you have a Flickr photoset called `2017-04-16 Easter Camping` and a file called `IMG_2517.jpg`, and you are trying to copy from a folder with `2017-04-16 Easter Camping\IMG_2517.jpg` it will assume this file is the same and will not try to copy it.
+Files are matched by folder names and file names, case insensitively. E.g. if you have a Flickr photoset called `2017-04-16 Easter Camping` and a file called `IMG_2517.jpg`, and you are trying to copy from a folder with `2017-04-16 Easter Camping\IMG_2517.jpg` it will assume this file is the same and will not try to copy it.
+
+### Dry run
+
+Before performing any operations, it's recommended to perform a dry run first, just pass `-n` or `--dry-run` to simulate syncing, without actually copying anything.
+
+### Deleting extra files
+
+>  WARNING: Use of this feature will permanently delete files, be sure you know what you're doing. 
+
+NOTE: Deleting extra files is not supported by the Google storage provider.
+
+Pass `--delete` to delete any extra files from the destination that don't exist in the source. E.g.
+
+```
+$ album-rsync ~/Pictures/flickr flickr --delete
+```
 
 ## Filtering
 
@@ -156,14 +193,20 @@ All options can be provided by either editing the config file `album-rsync.ini` 
 
 ```
 usage: album-rsync [-h] [-l] [--list-format {tree,csv}] [--list-sort]
-                    [--include REGEX] [--include-dir REGEX] [--exclude REGEX]
-                    [--exclude-dir REGEX] [--root-files] [-n]
-                    [--throttling SEC] [--retry NUM] [--api-key API_KEY]
-                    [--api-secret API_SECRET] [--tags "TAG1 TAG2"] [-v]
-                    [--version]
-                    [src] [dest]
+                   [--list-folders] [--delete] [-c] [--include REGEX]
+                   [--include-dir REGEX] [--exclude REGEX]
+                   [--exclude-dir REGEX] [--root-files] [-n]
+                   [--throttling SEC] [--retry NUM]
+                   [--flickr-api-key FLICKR_API_KEY]
+                   [--flickr-api-secret FLICKR_API_SECRET]
+                   [--flickr-tags "TAG1 TAG2"]
+                   [--google-api-key GOOGLE_API_KEY]
+                   [--google-api-secret GOOGLE_API_SECRET] [--logout] [-v]
+                   [--version]
+                   [src] [dest]
 
-A python script to manage synchronising a local directory of photos to flickr
+A python script to manage synchronising a local directory of photos with a
+remote service based on an rsync interaction pattern.
 
 positional arguments:
   src                   the source directory to copy or list files from, or
@@ -180,36 +223,45 @@ optional arguments:
   --list-sort           sort alphabetically when --list-only, note that this
                         forces buffering of remote sources so will be slower
   --list-folders        lists only folders (no files, implies --list-only)
+  --delete              WARNING: permanently deletes additional files in
+                        destination
   -c, --checksum        calculate file checksums for local files. Print
                         checksum when listing, use checksum for comparison
                         when syncing
-  --include REGEX       include only files matching REGEX. Defaults to
-                        media file extensions only
+  --include REGEX       include only files matching REGEX. Defaults to media
+                        file extensions only
   --include-dir REGEX   include only directories matching REGEX
   --exclude REGEX       exclude any files matching REGEX, note this takes
                         precedent over --include
   --exclude-dir REGEX   exclude any directories matching REGEX, note this
                         takes precedent over --include-dir
   --root-files          includes roots files (not in a directory or a
-                        photoset) in the list or copy 
+                        photoset) in the list or copy
   -n, --dry-run         in sync mode, don't actually copy anything, just
                         simulate the process and output
   --throttling SEC      the delay in seconds (may be decimal) before each
                         network call
-  --retry NUM           the number of times to retry a network call before
-                        failing
-  --api-key API_KEY     flickr API key
-  --api-secret API_SECRET
+  --retry NUM           the number of times to retry a network call (using
+                        exponential backoff) before failing
+  --flickr-api-key FLICKR_API_KEY
+                        flickr API key
+  --flickr-api-secret FLICKR_API_SECRET
                         flickr API secret
-  --tags "TAG1 TAG2"    space seperated list of tags to apply to uploaded
+  --flickr-tags "TAG1 TAG2"
+                        space seperated list of tags to apply to uploaded
                         files on flickr
+  --google-api-key GOOGLE_API_KEY
+                        Google API key
+  --google-api-secret GOOGLE_API_SECRET
+                        Google API secret
+  --logout              logout of remote service (service determined by src)
   -v, --verbose         increase verbosity
   --version             show program's version number and exit
 ```
 
 ### Config and token file discovery
 
-The config file `album-rsync.ini` and Flickr token file `album-rsync.token` are searched for in the following locations in order:
+The config file `album-rsync.ini` and token file `album-rsync.token` are searched for in the following locations in order:
 * `<current working dir>/album-rsync.ini`
 * `<current working dir>/.album-rsync.ini`
 * `<users home dir>/album-rsync.ini`
@@ -217,9 +269,11 @@ The config file `album-rsync.ini` and Flickr token file `album-rsync.token` are 
 * `<executable dir>/album-rsync.ini`
 * `<executable dir>/.album-rsync.ini`
 
+The token file is auto generated file containing the authorisation token to access the API. If deleted you will need to authorise the app again when next using it.
+
 ## Developing
 
-Either install using the 'standalone' method or install in development mode so source files are symlinked
+Install in development mode so source files are symlinked, meaning changes you make to the source files are reflected when you run the package anywhere.
 ```
 $ python setup.py develop
 ```
@@ -264,7 +318,7 @@ Checkout https://medium.com/instamojo-matters/become-a-pdb-power-user-e3fc4e2774
 
 Based on [http://peterdowns.com/posts/first-time-with-pypi.html](http://peterdowns.com/posts/first-time-with-pypi.html)
 
-1. Update `flickr_rsync/_version.py` with the new version number (e.g. 1.1.1)
+1. Update `album_rsync/_version.py` with the new version number (e.g. 1.1.1)
 2. Create a new GitHub release (e.g. `git tag -a v1.1.1 -m "Version v1.1.1 && git push --tags`)
 3. Push to PyPI
 ```
@@ -272,6 +326,21 @@ $ python setup.py sdist upload
 ```
 
 ## Running tests
+
+If `make` is installed, you can run tests using a virtual environment
+
+```
+$ make venv
+$ make test
+```
+
+which will lint the code and run tests. To just run the linter
+
+```
+$ make lint
+```
+
+To run the tests without make, use
 
 ```
 $ python setup.py test
@@ -282,7 +351,7 @@ $ python setup.py test
 Add decorator `@pytest.mark.focus` to test. Run with
 
 ```
-pytest -m focus
+$ pytest -m focus
 ```
 
 ## Tips
@@ -293,8 +362,7 @@ $ album-rsync flickr --exclude-dir '.*' --root-files --list-only
 ```
 
 ### Videos
-Movies should work, but flickr doesn't seem to return the original video when you download it again, it returns a 
-processed video that may have slightly downgraded quality and will not have the same checksum.
+Movies should work, but flickr doesn't seem to return the original video when you download it again, it returns a processed video that may have slightly downgraded quality and will not have the same checksum.
 
 ## Troubleshooting
 

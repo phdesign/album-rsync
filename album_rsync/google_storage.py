@@ -11,29 +11,28 @@ class GoogleStorage(RemoteStorage):
         self._folders = None
 
     def list_folders(self):
-        """
-        Lists all albums in Google
+        """Lists all albums in Google.
 
         Returns:
-            A lazy loaded generator function of Folder objects
+            A lazy loaded generator function of Folder objects.
         """
         return (folder for folder in self._list_all_folders_with_cache()
                 if self._should_include(folder.name, self._config.include_dir, self._config.exclude_dir))
 
     def list_files(self, folder):
-        """
-        Lists all photos within an album.
+        """Lists all photos within an album.
+
         Note that Google Photos does not support listing 'root' items, e.g. photos not in an album
 
         Args:
-            folder: The Folder object of the folder to list (from list_folders)
+            folder: The Folder object of the folder to list (from list_folders).
 
         Returns:
-            A lazy loaded generator function of File objects
+            A lazy loaded generator function of File objects.
 
         Raises:
-            KeyError: If folder.id is unrecognised
-            NotImplementedError: If folder is the root folder
+            KeyError: If folder.id is unrecognised.
+            NotImplementedError: If folder is the root folder.
         """
         if isinstance(folder, RootFolder):
             raise NotImplementedError("Google Photos API does not support listing photos not in an album")
@@ -44,30 +43,28 @@ class GoogleStorage(RemoteStorage):
                 yield file_
 
     def download(self, file_, dest):
-        """
-        Downloads a photo to local file system
+        """Downloads a photo to local file system.
 
         Args:
-            file_: The file info object (as returned by list_files) of the file to download
-            dest: The file system path to save the file to
+            file_: The file info object (as returned by list_files) of the file to download.
+            dest: The file system path to save the file to.
 
         Raises:
-            KeyError: If the file_.id is unrecognised
+            KeyError: If the file_.id is unrecognised.
         """
         self.mkdirp(dest)
         self._api.download(file_.url, dest)
 
     def upload(self, src, folder_name, file_name, checksum):
-        """
-        Uploads a photo from local file system
+        """Uploads a photo from local file system.
 
         Args:
-            src: The file system path to upload the photo from
-            folder_name: The photset name to add the photo to
-            file_name: The name of the photo, any extension will be removed
+            src: The file system path to upload the photo from.
+            folder_name: The photset name to add the photo to.
+            file_name: The name of the photo, any extension will be removed.
 
         Raises:
-            KeyError: If the file_.id is unrecognised
+            KeyError: If the file_.id is unrecognised.
         """
 
         if folder_name:
@@ -96,10 +93,13 @@ class GoogleStorage(RemoteStorage):
         return File(id=photo['id'], name=unescape(name), url=photo['baseUrl'] + '=d')
 
     def _list_all_folders_with_cache(self):
-        """
-        Return all folders from the server, using a cache to avoid making reptitive calls.
+        """List all folders using a cache.
+
         This assumes that the list of folders won't change by an external party while this
         program is running
+
+        Returns:
+            A list of all folders from the server, caching the list for subsequent calls.
         """
         if not self._folders:
             albums = self._api.list_albums()
