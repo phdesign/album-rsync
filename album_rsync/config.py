@@ -60,7 +60,7 @@ class Config:
         return getattr(self._args, name)
 
     def read(self):
-        parser = argparse.ArgumentParser(description='A python script to manage synchronising a local directory of photos with a remote service based on an rsync interaction pattern.', prog=__packagename__)
+        parser = argparse.ArgumentParser(description='A python script to manage synchronising a local directory of photos with a remote storage provider based on an rsync interaction pattern.', prog=__packagename__)
         parser.add_argument('src', type=str, nargs='?',
                             help='the source directory to copy or list files from, or FLICKR to specify flickr')
         parser.add_argument('dest', type=str, nargs='?',
@@ -105,7 +105,7 @@ class Config:
         parser.add_argument('--google-api-secret', type=str,
                             help='Google API secret')
         parser.add_argument('--logout', action='store_true',
-                            help='logout of remote service (service determined by src)')
+                            help='logout of remote storage provider (determined by src)')
 
         parser.add_argument('-v', '--verbose', action='store_true',
                             help='increase verbosity')

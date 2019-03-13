@@ -3,6 +3,7 @@ import time
 import logging
 from itertools import tee
 from urllib.error import URLError
+from requests.exceptions import HTTPError
 from .folder import RootFolder
 from .utils import choice
 
@@ -115,7 +116,7 @@ class Sync:
         if not self._config.dry_run:
             try:
                 self._src.copy_file(file_, folder and folder.name, self._dest)
-            except (URLError, FileNotFoundError) as err:
+            except (URLError, FileNotFoundError, HTTPError) as err:
                 logger.error("Error connecting to server, skipping. {!r}".format(err))
 
         logger.debug("{}...copied".format(path))

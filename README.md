@@ -1,6 +1,6 @@
 # album-rsync [![Build Status](https://travis-ci.org/phdesign/album-rsync.svg?branch=master)](https://travis-ci.org/phdesign/album-rsync)
 
-A python script to manage synchronising a local directory of photos with a remote service based on an rsync interaction pattern.
+A python script to manage synchronising a local directory of photos with a remote storage provider based on an rsync interaction pattern.
 
 ## Requirements
 
@@ -31,41 +31,49 @@ To install for the current user only:
 $ python setup.py install --user
 ```
 
-## Remote services
+## Storage providers
 
-Currently Flickr and Google Photos are supported.
+Currently the local file system, Flickr and Google Photos are supported. Below is a list of supported features for each.
 
-## Authenticating with Flickr
+|                    | Local | Flickr | Google |
+| ------------------ | ----- | ------ | ------ |
+| Root files         | Yes   | Yes    | No     |
+| Delete extra files | Yes   | Yes    | No     |
+| Logout             | No    | Yes    | Yes    |
 
-API keys are needed to authorise this app. To create API keys, visit https://www.flickr.com/services/api/misc.api_keys.html.
+## Authenticating
 
-Two keys are provided by Flickr, an api key and a secret. To enable the app to use these keys, either:
+To authenticate against a storage provider, you will need to setup API keys, and then authorise your account.
 
-* provide `--flickr-api-key` and `--flickr-api-secret` arguments to the command line
+To create API keys, visit:
+**Flickr:** https://www.flickr.com/services/api/misc.api_keys.html
+**Google:** https://console.developers.google.com/apis/library/photoslibrary.googleapis.com
+
+You will be issued an api key and a secret. To enable the app to use these keys, either:
+
+* For Flickr, provide `--flickr-api-key` and `--flickr-api-secret` arguments to the command line
+* For Google, provide `--google-api-key` and `--google-api-secret` arguments to the command line
 * create a config file in $HOME/.album-rsync.ini with the following entries
 
 ```
+# For Flickr
 FLICKR_API_KEY = xxxxxxxxxxxxxxxxxxx
 FLICKR_API_SECRET = yyyyyyyyyyyyyy
-```
 
-The first time you perform any action against the Flickr API this app will prompt you to authorise access to your account, you can choose to request delete permissions, or write only permissions if you do not want any photos deleted from Flickr.
-
-## Authenticating with Google Photos
-
-API keys are needed to authorise this app. To create API keys, visit https://console.developers.google.com/apis/library/photoslibrary.googleapis.com
-
-Two keys are provided by Google, an api key and a secret. To enable the app to use these keys, either:
-
-- provide `--google-api-key` and `--google-api-secret` arguments to the command line
-- create a config file in $HOME/.album-rsync.ini with the following entries
-
-```
+# For Google
 GOOGLE_API_KEY = xxxxxxxxxxxxxxxxxxx
 GOOGLE_API_SECRET = yyyyyyyyyyyyyy
 ```
 
-The first time you perform any action against the Google Photos API this app will prompt you to authorise access to your account.
+The first time you perform any action against the storage provider, this app will prompt you to authorise access to your account. For Flickr you may choose to request delete permissions, or write only permissions if you do not want any photos deleted by this app.
+
+### Logout
+
+To remove the authentication token for a storage provider, specify the storage provider as the source and pass the `--logout` argument. E.g.
+
+```
+$ album-rsync flickr --logout
+```
 
 ## Listing files
 
@@ -206,7 +214,7 @@ usage: album-rsync [-h] [-l] [--list-format {tree,csv}] [--list-sort]
                    [src] [dest]
 
 A python script to manage synchronising a local directory of photos with a
-remote service based on an rsync interaction pattern.
+remote storage provider based on an rsync interaction pattern.
 
 positional arguments:
   src                   the source directory to copy or list files from, or
@@ -254,7 +262,7 @@ optional arguments:
                         Google API key
   --google-api-secret GOOGLE_API_SECRET
                         Google API secret
-  --logout              logout of remote service (service determined by src)
+  --logout              logout of remote storage provider (determined by src)
   -v, --verbose         increase verbosity
   --version             show program's version number and exit
 ```
