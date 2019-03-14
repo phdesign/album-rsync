@@ -76,7 +76,7 @@ class Config:
         parser.add_argument('--delete', action='store_true',
                             help='WARNING: permanently deletes additional files in destination')
         parser.add_argument('-c', '--checksum', action='store_true',
-                            help='calculate file checksums for local files. Print checksum when listing, use checksum for comparison when syncing')
+                            help='calculate md5 file checksums for local files. Print checksum when listing, add checksum tag to flickr')
         parser.add_argument('--include', type=str, metavar='REGEX',
                             help='include only files matching REGEX. Defaults to media file extensions only')
         parser.add_argument('--include-dir', type=str, metavar='REGEX',
