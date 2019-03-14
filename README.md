@@ -442,10 +442,13 @@ $ PYTHONIOENCODING=utf-8 album-rsync ./flickr --list-only
 
 ## Release notes
 
-### vNext
+### v2.0.4 (14 Mar 2019)
 
+* Renamed to `album-rsync`
+* Converted to Python 3
+* Added Google Photos storage provider
 * Continues to next file when an error occurs copying a file (after retry policies have been applied)
-* Support for deleting additional files in destination folder
+* Support for deleting extra files in destination
 
 ### v1.0.5 (21 Mar 2018)
 
@@ -462,12 +465,11 @@ $ PYTHONIOENCODING=utf-8 album-rsync ./flickr --list-only
 
 ## TODO
 
-* Handle nested directories. Merge with separator like `parent_child`. Apply --include-dir after merging
-* List duplicate files
-* Webpage for successful Flickr login
-* Optimise - why does sort files seem to run faster?!
-* Fix duplicate albums issue
-* Why does it make 3 api calls for every photo in --list-only --list-sort mode?
-* --init to setup a new .ini file and walk through auth process
-* Add throttling and delay to Google
-* Document delete functionality
+- [ ] Handle nested directories. Merge with separator like `parent_child`. Apply --include-dir after merging
+- [ ] List duplicate files
+- [ ] Webpage for successful Flickr login
+- [ ] Optimise - why does sort files seem to run faster?!
+- [ ] Fix duplicate albums issue
+- [ ] Why does it make 3 api calls for every photo in --list-only --list-sort mode?
+- [ ] --init to setup a new .ini file and walk through auth process
+- [ ] Add throttling and delay to Google
