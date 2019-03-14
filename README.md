@@ -327,10 +327,10 @@ Checkout https://medium.com/instamojo-matters/become-a-pdb-power-user-e3fc4e2774
 Based on [http://peterdowns.com/posts/first-time-with-pypi.html](http://peterdowns.com/posts/first-time-with-pypi.html)
 
 1. Update `album_rsync/_version.py` with the new version number (e.g. 1.1.1)
-2. Create a new GitHub release (e.g. `git tag -a v1.1.1 -m "Version v1.1.1 && git push --tags`)
+2. Create a new GitHub release (e.g. `git tag -a v1.1.1 -m "Version v1.1.1" && git push --tags`)
 3. Push to PyPI
 ```
-$ python setup.py sdist upload
+$ make deploy
 ```
 
 ## Running tests

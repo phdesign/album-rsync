@@ -1,9 +1,16 @@
 language: python
 python:
-  - "3.6"
-  - "3.6-dev"  # 3.6 development branch
-  - "3.7-dev"  # 3.7 development branch
+- '3.6'
+- 3.6-dev
+- 3.7-dev
 install:
-  - make venv
+- make venv
 script:
-  - make test
+- make test
+deploy:
+  provider: pypi
+  user: phdesign
+  on:
+    tags: true
+  password:
+    secure: YwTRhOmu/BCrhp04w+VHWwUPhKLiWM4ZcR67fSgZ5h89KQ2TXxsqQ+ySx0Efr9HShd5ud/2zBA6YqgQYwj6eEPVFWC49ZDmdCxiho/u3HZDFl3JpPvRoUryv0d5Z4wJ//gJJnCFObdMI/UPYj2GMy88k9lfNiEk/ncmQNduGt0rnZqoRkYxEMnORS/tCzB4heWlyGAYwa6nftWoMBEDguB4TnVor+xGordo5vjAaoK71F1yUYrVo56ZwkUwnQiCzcKpy9KDnIIOCVv0dFWs+cp+KV87UeyyZPwkhWAOWgpdklUkry/XA74iHYSZdwJm3HA1/MhWYjE/pJuY4Ajfil6jZXjpEXKFeB4koG7IR9qTY8cB+qTHKY9yBvd6Nd2nVyKTl/RtPIMQxZ9ecPBd13T3t/WUy8b4jRZRS2ukK+bKDtyYeKeLEazBe6nNwOdLY/GVeQ+smUwkv42u9Iox+Ks8K+tgGNU8HZcUW6IGZ1KW4J9D14hmZQbee8usqrWeML5nLnOfnX7K3gG1JZyIkq47P1Z6q9YwM3xCRX4BNvBViwsry73kyDzDG/TpYYTUpUJF/aVCzcrGbEegAVQ1bSEcDxwZswyNc8ElF6Rae7V0dDNNiv6KabdNG7m3h76KADV8c3SJ6IKbWYoohOA8fji94DC72RdVuM1ZqruuXJ74=

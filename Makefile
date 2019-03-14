@@ -1,10 +1,18 @@
-VENV_NAME       ?= .venv
+VENV_NAME ?= .venv
+PYTHON ?= python
+
+get_python_version = $(word 2,$(subst ., ,$(shell $(1) --version 2>&1)))
+ifneq ($(call get_python_version,$(PYTHON)), 3)
+    PYTHON = python3
+endif
+ifneq ($(call get_python_version,$(PYTHON)), 3)
+    $(error "No supported python found! Requires python v3.6+")
+endif
+
 ifdef OS
-	PYTHON          ?= python
-	VENV_ACTIVATE   ?= $(VENV_NAME)/Scripts/activate
+    VENV_ACTIVATE ?= $(VENV_NAME)/Scripts/activate
 else
-	PYTHON          ?= python3
-	VENV_ACTIVATE   ?= $(VENV_NAME)/bin/activate
+    VENV_ACTIVATE ?= $(VENV_NAME)/bin/activate
 endif
 
 init:
@@ -30,4 +38,8 @@ clean:
 	find . -iname "*.pyc" -delete
 	find . -type d -name "__pycache__" -delete
 
-.PHONY: init venv lint test clean
+deploy: test
+	$(PYTHON) setup.py sdist upload
+
+.PHONY: init venv lint test clean deploy
+.DEFAULT: test
