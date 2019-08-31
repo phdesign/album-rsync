@@ -30,6 +30,7 @@ setup(
     version=version,
     description='A python script to manage synchronising a local directory of photos with a remote service based on an rsync interaction pattern',
     long_description=readme,
+    long_description_content_type="text/markdown",
     author='Paul Heasley',
     author_email='paul@phdesign.com.au',
     url='http://www.phdesign.com.au/album-rsync',

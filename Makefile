@@ -16,20 +16,17 @@ else
 endif
 
 init:
-	pip install -r requirements.txt
-
-venv:
 	test -d $(VENV_NAME) || $(PYTHON) -m venv $(VENV_NAME)
 	source $(VENV_ACTIVATE); \
 	pip install -r requirements.txt; \
 	pip install -r tests/requirements.txt
 
 lint:
-	@test -d $(VENV_NAME) && source $(VENV_ACTIVATE); \
+	@source $(VENV_ACTIVATE); \
 	pylint --exit-zero -f colorized {**,.}/*.py
 
 test: lint
-	@test -d $(VENV_NAME) && source $(VENV_ACTIVATE); \
+	@source $(VENV_ACTIVATE); \
 	python setup.py test
 
 clean:
@@ -38,8 +35,15 @@ clean:
 	find . -iname "*.pyc" -delete
 	find . -type d -name "__pycache__" -delete
 
-deploy: test
-	$(PYTHON) setup.py sdist upload
+build: test
+	rm -rf dist
+	$(PYTHON) setup.py sdist
 
-.PHONY: init venv lint test clean deploy
+deploy: build
+	twine upload dist/*
+
+deploy-test: build
+	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+
+.PHONY: init lint test clean build deploy deploy-test
 .DEFAULT: test
