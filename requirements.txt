@@ -1,4 +1,4 @@
 git+git://github.com/alexis-mignon/python-flickr-api@65effbe#egg=flickr_api
-rx
+rx~=1.6
 backoff
 setuptools>=38.5.1
