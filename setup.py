@@ -50,7 +50,7 @@ setup(
     tests_require=['pytest'],
     zip_safe=True,
     entry_points={
-        'console_scripts': ['album-rsync=album_rsync:main'],
+        'console_scripts': ['album-rsync=album_rsync.__main__:main'],
     },
     include_package_data=True
 )
