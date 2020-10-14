@@ -46,26 +46,34 @@ Currently the local file system, Flickr and Google Photos are supported. Below i
 To authenticate against a storage provider, you will need to setup API keys, and then authorise your account.
 
 To create API keys, visit:
-**Flickr:** https://www.flickr.com/services/api/misc.api_keys.html
+**Flickr:** https://www.flickr.com/services/api/misc.api_keys.html 
 **Google:** https://console.developers.google.com/apis/library/photoslibrary.googleapis.com
 
 You will be issued an api key and a secret. To enable the app to use these keys, either:
 
 * For Flickr, provide `--flickr-api-key` and `--flickr-api-secret` arguments to the command line
+
 * For Google, provide `--google-api-key` and `--google-api-secret` arguments to the command line
-* create a config file in $HOME/.album-rsync.ini with the following entries
+
+
+or create a config file in $HOME/.album-rsync.ini with the following entries
 
 ```
-# For Flickr
-FLICKR_API_KEY = xxxxxxxxxxxxxxxxxxx
-FLICKR_API_SECRET = yyyyyyyyyyyyyy
+[Flickr]
 
-# For Google
-GOOGLE_API_KEY = xxxxxxxxxxxxxxxxxxx
-GOOGLE_API_SECRET = yyyyyyyyyyyyyy
+# Your Flickr API key and secret 
+# Go to http://www.flickr.com/services/apps/create/apply and apply for an API key
+API_KEY = xxxxxxxxxxxxxxxxxxx
+API_SECRET = yyyyyyyyyyyyyy
+
+[Google]
+
+# Your Google API key and secret 
+API_KEY = xxxxxxxxxxxxxxxxxxx
+API_SECRET = yyyyyyyyyyyyyy
 ```
 
-The first time you perform any action against the storage provider, this app will prompt you to authorise access to your account. For Flickr you may choose to request delete permissions, or write only permissions if you do not want any photos deleted by this app.
+The first time you perform any action against the storage provider, this app will prompt you to authorise access to your account. For Flickr you may choose to request delete permissions, or write only permissions if you do not want any photos deleted by this app. After logging in an authentication token will be stored in `$HOME/.album-rsync.token`
 
 ### Logout
 
@@ -267,6 +275,88 @@ optional arguments:
   --version             show program's version number and exit
 ```
 
+### Sample config file
+
+```ini
+[Options]
+
+# list the files in SRC instead of copying them
+LIST_ONLY = False
+
+# output format for LIST_ONLY, TREE for a tree based output or CSV
+LIST_FORMAT = tree
+
+# sort alphabetically when --list-only, note that this forces buffering of 
+# remote sources so will be slower
+LIST_SORT = False
+
+# WARNING: permanently deletes additional files in destination
+DELETE = False
+
+# calculate file checksums for local files. Print checksum when listing, use 
+# checksum for comparison when syncing
+CHECKSUM = False
+
+# in sync mode, don't actually copy anything, just simulate the process and output
+DRY_RUN = False
+
+# increases verbosity, prints additional logging messages
+VERBOSE = False
+
+[Network]
+
+# the delay in seconds (may be decimal) before each network call
+THROTTLING = 0
+
+#  the number of times to retry a network call before failing 
+RETRY = 0
+
+[Flickr]
+
+# Your Flickr API key and secret 
+# Go to http://www.flickr.com/services/apps/create/apply and apply for an API key
+API_KEY = 
+API_SECRET = 
+
+# Space seperated list of tags to tag each uploaded image with
+TAGS = flickr-rsync
+
+# Visibility rights for uploaded images
+IS_PUBLIC = 0
+IS_FRIEND = 0
+IS_FAMILY = 1
+
+[Google]
+
+# Your Google API key and secret 
+API_KEY = 
+API_SECRET = 
+
+[Files]
+
+# the source directory to copy or list files from, or FLICKR to specify flickr
+SRC = /path/to/folder
+
+# the destination directory to copy files to, or FLICKR to specify flickr
+DEST = 
+
+# include only files matching REGEX
+INCLUDE = \.(jpg|png|avi|mov|mpg|mp4|3gp)$
+
+# include only directories matching REGEX 
+INCLUDE_DIR = 
+
+# exclude any files matching REGEX, note this takes precedent over --include
+EXCLUDE = ^\.
+
+# exclude any directories matching REGEX, note this takes precedent 
+# over --include-dir
+EXCLUDE_DIR = 
+
+# includes roots files (not in a directory or a photoset) in the list or copy
+ROOT_FILES = False
+```
+
 ### Config and token file discovery
 
 The config file `album-rsync.ini` and token file `album-rsync.token` are searched for in the following locations in order:
@@ -441,6 +531,10 @@ $ PYTHONIOENCODING=utf-8 album-rsync ./flickr --list-only
 ```
 
 ## Release notes
+
+### v2.0.5 (31 Aug 2019)
+
+- Updating build system
 
 ### v2.0.4 (14 Mar 2019)
 
